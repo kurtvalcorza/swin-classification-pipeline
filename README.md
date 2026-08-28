@@ -69,6 +69,25 @@ and logical identity the release names is proven rather than assumed —
 All three checkouts are required. A missing worker checkout is reported as a
 failed check and a non-zero exit, never as a silent pass.
 
+The contract-identity checks are **gates, not checks**: they run before
+`ML_WORKER_SRC/src` is placed on `sys.path`, because importing contract code
+executes module-level code out of a caller-supplied tree, and a check that runs
+after the import cannot undo it. Source manifests are parsed with the contract's
+own strict loader, so a source document that stdlib JSON would accept but the
+contract rejects (DOC-001: duplicate object keys) is never digested as valid.
+
+`scripts/negative_controls.py` is the executable proof that the verifier refuses
+what it claims to refuse. It builds each scenario in a temporary directory --
+nothing in this repository or in your checkouts is modified -- and asserts the
+specific refusal, including that an unproved contract checkout's code never runs:
+
+```sh
+ML_WORKER_SRC=/tmp/mlw \
+VALIDATOR_SRC=<validator checkout> \
+FINETUNER_SRC=<finetuner checkout> \
+    python scripts/negative_controls.py
+```
+
 ## Status
 
 Layer-1 (worker repos + this umbrella) of the three-layer freeze program. The

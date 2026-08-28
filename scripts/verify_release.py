@@ -21,7 +21,6 @@ reported as a failed check, never as a silent pass.
 """
 from __future__ import annotations
 
-import json
 import os
 import subprocess
 import sys
@@ -54,10 +53,37 @@ def main() -> int:
     contract_src = os.environ.get("ML_WORKER_SRC")
     if not contract_src:
         fail("set ML_WORKER_SRC to an ml-worker tree at the pinned contract revision")
-    sys.path.insert(0, str(Path(contract_src) / "src"))
+
+    # Importing from ML_WORKER_SRC executes module-level code out of a
+    # caller-supplied tree. Prove that tree's identity FIRST: a check that runs
+    # after the import cannot undo code that has already executed, and that code
+    # can influence every verification that follows. These are gates, not
+    # checks -- they refuse before the trust boundary is crossed.
+    contract_root = Path(contract_src)
+    head = git_output(contract_root, "rev-parse", "HEAD")
+    if head is None:
+        fail(
+            f"{contract_src} is not a git checkout; the contract identity cannot "
+            "be established and its code will not be imported"
+        )
+    if head.strip() != CONTRACT_REVISION:
+        fail(
+            f"ML_WORKER_SRC is at {head.strip()[:7]}, not the pinned contract "
+            f"revision {CONTRACT_REVISION[:7]}; refusing to import from it"
+        )
+    contract_status = git_output(contract_root, "status", "--porcelain")
+    if contract_status is None:
+        fail("cannot read the contract checkout's git status; refusing to import from it")
+    if contract_status.strip():
+        fail(
+            "the contract checkout has a dirty worktree; refusing to import "
+            "unverified contract code"
+        )
+
+    sys.path.insert(0, str(contract_root / "src"))
     from ml_worker_contract.composition import compose
     from ml_worker_contract.identity import digest_document
-    from ml_worker_contract.jsonio import load_strict
+    from ml_worker_contract.jsonio import ContractJSONError, load_strict, loads_strict
     from ml_worker_contract.release import build_contract_release
     from ml_worker_contract.schemas import validate as validate_document
 
@@ -85,11 +111,14 @@ def main() -> int:
                 (f"{role} source revision {short} resolvable in {env_name}", False)
             ]
         try:
-            source_manifest = json.loads(blob)
-        except json.JSONDecodeError:
+            # Contract interchange semantics, not stdlib JSON: DOC-001 makes
+            # duplicate object keys invalid, while json.loads silently accepts
+            # them last-key-wins and would digest the result as a valid document.
+            source_manifest = loads_strict(blob)
+        except (ContractJSONError, ValueError):
             return [
                 (f"{role} source revision {short} resolvable in {env_name}", True),
-                (f"{role} manifest at {short} is valid JSON", False),
+                (f"{role} manifest at {short} is strict contract JSON", False),
             ]
         return [
             (f"{role} source revision {short} resolvable in {env_name}", True),
@@ -119,24 +148,16 @@ def main() -> int:
             errors = validate_document(load(path), schema_name)
             checks.append((f"schema {path}", not errors))
 
-    # The contract identity the whole release claims must be the tree actually
-    # imported above, not merely whatever the caller pointed ML_WORKER_SRC at.
-    contract_root = Path(contract_src)
-    head = git_output(contract_root, "rev-parse", "HEAD")
-    checks.append(("contract source is a git checkout", head is not None))
+    # Proven above, before the import; recorded here so the report is complete.
+    checks.append(("contract source is a git checkout (gated before import)", True))
     checks.append(
         (
-            f"contract source at pinned revision {CONTRACT_REVISION[:7]}",
-            head is not None and head.strip() == CONTRACT_REVISION,
+            f"contract source at pinned revision {CONTRACT_REVISION[:7]} "
+            "(gated before import)",
+            True,
         )
     )
-    contract_status = git_output(contract_root, "status", "--porcelain")
-    checks.append(
-        (
-            "contract source tree clean",
-            contract_status is not None and not contract_status.strip(),
-        )
-    )
+    checks.append(("contract source tree clean (gated before import)", True))
 
     validator_manifest = load("workers/validator/worker-manifest.json")
     finetuner_manifest = load("workers/finetuner/worker-manifest.json")
