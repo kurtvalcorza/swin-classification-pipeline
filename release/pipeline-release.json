@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "1.0",
+  "pipelineId": "org.valcorza.swin-classification",
+  "version": "0.1.0",
+  "pipelineManifestDigest": "sha256:309549532e19e10e4acf13735d2679c499f8004d074925ae01be0e2b46b9dc91",
+  "validatorWorkerReleaseDigest": "sha256:c9f6dc60b8f9910b277acafb816e3fef4c6b5b12604dd4eb239061a9ff655a56",
+  "finetunerWorkerReleaseDigest": "sha256:25669ae49c18f38495e8121cacade4e5d2626ad320c89862184677f849153ec1",
+  "contractReleaseDigest": "sha256:ef018df28a1bbf547663bdc47d9152364515f34bee2f885566304915459c5ced",
+  "compositionReportDigest": "sha256:61c3afe6ad6e9375103d38d9a84c3cef4712bbc1b371752fb5a156e9952e23c5"
+}
