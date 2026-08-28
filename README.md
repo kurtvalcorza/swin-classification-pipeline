@@ -49,11 +49,25 @@ Every binding re-derives from the committed inputs and the pinned contract:
 
 ```sh
 git -C <ml-worker> worktree add /tmp/mlw 0f0c221222402721ee7716edf01378604cbd6ef3
-ML_WORKER_SRC=/tmp/mlw python scripts/verify_release.py
+ML_WORKER_SRC=/tmp/mlw \
+VALIDATOR_SRC=<swin-classification-dataset-validator checkout> \
+FINETUNER_SRC=<swin-classification-finetuner checkout> \
+    python scripts/verify_release.py
 ```
 
-Exit 0 means: all 7 documents schema-valid, every digest chain intact, and a
-fresh composition run reproduces the committed `COMPATIBLE` report.
+Exit 0 means: all 7 documents schema-valid, every digest chain intact, a fresh
+composition run reproduces the committed `COMPATIBLE` report, and every external
+and logical identity the release names is proven rather than assumed —
+
+- the contract checkout is a **clean git tree at the pinned revision**, not
+  merely whatever path `ML_WORKER_SRC` points at;
+- each committed worker-manifest copy **agrees with `worker-manifest.json` at
+  that release's declared `sourceRevision`** in the worker repository;
+- `pipelineId` agrees across the manifest and the release, each `workerId`
+  agrees with its worker manifest, and each manifest declares its expected role.
+
+All three checkouts are required. A missing worker checkout is reported as a
+failed check and a non-zero exit, never as a silent pass.
 
 ## Status
 
