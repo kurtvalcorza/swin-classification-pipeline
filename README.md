@@ -125,6 +125,33 @@ FINETUNER_SRC=<finetuner checkout> \
     python scripts/negative_controls.py
 ```
 
+### Image build-context hygiene
+
+`verify_release.py` proves the release's *bindings*: every digest re-derives and
+each committed manifest agrees with the manifest at its `sourceRevision`. That is
+a statement about identity, not about the artifact the identity names -- a
+perfectly coherent chain can pin an image whose contents are wrong.
+
+`scripts/verify_image_context_hygiene.py` checks one such property that no digest
+agreement can detect. Each worker Dockerfile copies its build context wholesale
+and `.gitignore` does not filter Docker contexts, so an image built from a
+revision predating that worker's `.dockerignore` embeds full repository history
+and depends on whose workspace built it:
+
+```sh
+VALIDATOR_SRC=<validator checkout> \
+FINETUNER_SRC=<finetuner checkout> \
+    python scripts/verify_image_context_hygiene.py
+```
+
+**This currently fails**, by design: both pinned images were built from revisions
+that predate their `.dockerignore` (validator `52d1fd0` < `bbd49cb`; finetuner
+`0621a11` < `313ce68`). It is kept out of `verify_release.py` and out of CI so the
+release's binding claims -- which are true -- stay green while this separate and
+currently false claim stays visible. Once both images are rebuilt from
+post-`.dockerignore` revisions and the releases repinned, it passes and can be
+folded into the release gate.
+
 ## Status
 
 Layer-1 (worker repos + this umbrella) of the three-layer freeze program. The
