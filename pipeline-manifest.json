@@ -1,8 +1,8 @@
 {
   "schemaVersion": "1.0",
   "pipelineId": "org.valcorza.swin-classification",
-  "validatorWorkerReleaseDigest": "sha256:c9f6dc60b8f9910b277acafb816e3fef4c6b5b12604dd4eb239061a9ff655a56",
-  "finetunerWorkerReleaseDigest": "sha256:25669ae49c18f38495e8121cacade4e5d2626ad320c89862184677f849153ec1",
+  "validatorWorkerReleaseDigest": "sha256:a3c094a8b8ac61e14abdaf5732b08e70211b16c415ec6cb3d75ebd193d524fab",
+  "finetunerWorkerReleaseDigest": "sha256:15355e676cb31393bed074179aa372b098b48852eb49f472413fdfd197dae137",
   "taskProfile": "core.task.vision.image-classification",
   "datasetRepresentations": [
     "core.dataset.vision.image-folder"

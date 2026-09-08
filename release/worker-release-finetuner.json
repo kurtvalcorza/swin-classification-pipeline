@@ -2,12 +2,13 @@
   "schemaVersion": "1.0",
   "workerId": "org.valcorza.swin-classification-finetuner",
   "version": "0.1.0",
-  "imageDigest": "sha256:ff4297dd81798d91c8616dc96fcb61de5cbdeca102afb964562fd52c62b43d47",
+  "imageDigest": "sha256:6b8479f48d98cc81d4776edb7769cb35e02a70593ba8cb10d8ea9b2ec7ba8e0e",
   "workerManifestDigest": "sha256:cee86785024f77e6e01386f719b6da67afc86005b09f751f484a6463de3f36ef",
-  "sourceRevision": "7025c875847d7e75dcad2a1f7f15fd1275a8d9f0",
+  "sourceRevision": "0621a11c1cdb6749984aaaca6919086e5c2a7d65",
   "contractReleaseDigest": "sha256:ef018df28a1bbf547663bdc47d9152364515f34bee2f885566304915459c5ced",
   "conformanceEvidenceDigests": [
     "sha256:a3cffa345f5c023e5a203ad566dc1d971115ee48278b2d582476239d27456dce",
-    "sha256:230e094ee7fa4eb2e9cab7a74f0a45ce31c35bdeb9df68f83ac87e912059e522"
+    "sha256:230e094ee7fa4eb2e9cab7a74f0a45ce31c35bdeb9df68f83ac87e912059e522",
+    "sha256:b9630c5b8a5085de0f93b751d829a5871cd6b936c942cfbf79de3d3b43c8fe46"
   ]
 }
