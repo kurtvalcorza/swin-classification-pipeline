@@ -2,9 +2,9 @@
   "schemaVersion": "1.0",
   "pipelineId": "org.valcorza.swin-classification",
   "version": "0.1.0",
-  "pipelineManifestDigest": "sha256:309549532e19e10e4acf13735d2679c499f8004d074925ae01be0e2b46b9dc91",
-  "validatorWorkerReleaseDigest": "sha256:c9f6dc60b8f9910b277acafb816e3fef4c6b5b12604dd4eb239061a9ff655a56",
-  "finetunerWorkerReleaseDigest": "sha256:25669ae49c18f38495e8121cacade4e5d2626ad320c89862184677f849153ec1",
+  "pipelineManifestDigest": "sha256:fab1d35b32fe7753452056218905e3cf800d884b4c71c4f37a3b6d265d39f700",
+  "validatorWorkerReleaseDigest": "sha256:a3c094a8b8ac61e14abdaf5732b08e70211b16c415ec6cb3d75ebd193d524fab",
+  "finetunerWorkerReleaseDigest": "sha256:15355e676cb31393bed074179aa372b098b48852eb49f472413fdfd197dae137",
   "contractReleaseDigest": "sha256:ef018df28a1bbf547663bdc47d9152364515f34bee2f885566304915459c5ced",
-  "compositionReportDigest": "sha256:61c3afe6ad6e9375103d38d9a84c3cef4712bbc1b371752fb5a156e9952e23c5"
+  "compositionReportDigest": "sha256:4e72b3ff0ed08617c31379548dc97c3e2c2a559fb1ceb8e91c4fcac9d403ed15"
 }
