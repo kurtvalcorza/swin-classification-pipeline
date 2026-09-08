@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "1.0",
+  "pipelineId": "org.valcorza.swin-classification",
+  "validatorWorkerReleaseDigest": "sha256:a3c094a8b8ac61e14abdaf5732b08e70211b16c415ec6cb3d75ebd193d524fab",
+  "finetunerWorkerReleaseDigest": "sha256:15355e676cb31393bed074179aa372b098b48852eb49f472413fdfd197dae137",
+  "taskProfile": "core.task.vision.image-classification",
+  "datasetRepresentations": [
+    "core.dataset.vision.image-folder"
+  ],
+  "modelDescriptors": [
+    {
+      "id": "org.timm.swinv2-tiny-window8-256-ms-in1k",
+      "version": "650d02aabf05e8adbd060a739ab39e39f53da639",
+      "modelFamily": "org.timm.swinv2",
+      "trainingMethods": [
+        "core.training.supervised-finetuning"
+      ]
+    },
+    {
+      "id": "org.timm.swinv2-small-window8-256-ms-in1k",
+      "version": "0c9500fcde4c689e97ff51954debae59c158af0d",
+      "modelFamily": "org.timm.swinv2",
+      "trainingMethods": [
+        "core.training.supervised-finetuning"
+      ]
+    }
+  ],
+  "trainingMethods": [
+    "core.training.supervised-finetuning"
+  ],
+  "exposedConfig": {
+    "baseModel": {
+      "type": "string",
+      "enum": [
+        "swinv2-tiny-window8-256-ms-in1k",
+        "swinv2-small-window8-256-ms-in1k"
+      ]
+    }
+  },
+  "configProjection": {
+    "validator": [],
+    "finetuner": [
+      "baseModel"
+    ]
+  },
+  "requiredArtifactRoles": [
+    "core.artifact.model"
+  ],
+  "securityRequirements": {
+    "runningOutbound": "DENY",
+    "customCode": "DENY"
+  }
+}

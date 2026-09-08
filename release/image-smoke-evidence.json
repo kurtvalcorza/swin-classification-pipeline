@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "1.0",
+  "status": "PASSED",
+  "description": "End-to-end smoke executed from the runnable worker images themselves: fixture generated in the validator image, validator image produced the handoff, finetuner image trained/published/reloaded from its baked-in weights. Both stages ran with --network none; the finetuner ran with --gpus all.",
+  "images": {
+    "validator": {
+      "image": "swin-classification-validator:52d1fd0",
+      "imageDigest": "sha256:e51768e8f39c7a29a85eeae223ba7e0d57477717bd93807cce13277e05fda82d",
+      "sourceRevision": "52d1fd0ca9af5bfd413b0cd7cc1e3f441560fa95"
+    },
+    "finetuner": {
+      "image": "swin-classification-finetuner:0621a11",
+      "imageDigest": "sha256:6b8479f48d98cc81d4776edb7769cb35e02a70593ba8cb10d8ea9b2ec7ba8e0e",
+      "sourceRevision": "0621a11c1cdb6749984aaaca6919086e5c2a7d65",
+      "weightStaging": "downloaded at pinned HF revisions during image build and SHA-256 verified against the catalog (scripts/stage_weights.py); a mismatch fails the build"
+    }
+  },
+  "environment": {
+    "baseImage": "pytorch/pytorch@sha256:417bd75df6365104c283ea4c1651fb3530d9eb5a4c2fafa51943cff2a94e6385",
+    "timm": "1.0.28",
+    "torch": "2.8.0+cu128",
+    "device": "cuda:0 (NVIDIA GeForce RTX 5070 Ti Laptop GPU, sm_120)",
+    "network": "none for both worker stages"
+  },
+  "results": {
+    "validator": {
+      "state": "SUCCEEDED",
+      "validatedDatasetManifestDigest": "sha256:4d0e4751ecf14c2540f0ae3efc05c4423c3ae7d13b65e8bf4a6dfce666763f4c",
+      "dataPlanDigest": "sha256:46bb7a5a26b490c5d485862c21bdf9bf915265a77d8b34ca06d55c4cb34d415d",
+      "handoffIdenticalToSourceBasedSmoke": true
+    },
+    "finetuner": {
+      "state": "SUCCEEDED",
+      "validationAccuracy": 1.0,
+      "validationCrossEntropy": 0.49435198307037354,
+      "runManifestDigest": "sha256:82a707a0f0362f14251a8aafb41f56d7066464d1b2f40bb2c1dcacbf2cca8ade",
+      "artifactBundleDigest": "sha256:5eb8870b9bcf8406312a703a9824350047d128dc1d67d0cfff04d2ea0530e2ac"
+    }
+  },
+  "limitations": [
+    "Bounded fixture smoke from the worker images; not production-scale.",
+    "Image digests are the local containerd manifest-list digests; they become registry digests unchanged on push.",
+    "Training remains REEXECUTABLE: cross-entropy differs from the source-based smoke in the 7th decimal."
+  ]
+}
