@@ -5,6 +5,24 @@ image classification on the [ml-worker contract](https://github.com/kurtvalcorza
 It binds the dataset validator and finetuner workers into one composed,
 digest-pinned, contract-validated release.
 
+## Upstream alignment
+
+This pipeline corresponds to the **Image Classification** downstream task of the
+original Microsoft Swin Transformer project.
+
+- **Upstream project:** [Microsoft Swin Transformer](https://github.com/microsoft/Swin-Transformer)
+- **Upstream task:** Image Classification
+- **Canonical benchmark:** ImageNet-1K (with ImageNet-22K pretraining used by some upstream variants)
+- **Reference architecture:** Swin/SwinV2 backbone + image-classification head
+- **Pipeline task boundary:** image → class label
+- **Primary metrics:** top-1 accuracy; top-5 accuracy where applicable
+- **This implementation:** digest-pinned SwinV2 Tiny and Small ImageNet-1K checkpoints through the pipeline's allowlisted base-model catalog
+
+The repo family deliberately mirrors the three canonical Swin downstream task
+families: **Image Classification**, **Semantic Segmentation**, and **Object
+Detection**. Each pipeline shares Swin backbone lineage while keeping a separate
+task head, dataset contract, metrics surface, and finetuning path.
+
 | Component | Repository | Pinned revision |
 | :--- | :--- | :--- |
 | Dataset validator | [swin-classification-dataset-validator](https://github.com/kurtvalcorza/swin-classification-dataset-validator) | `818d88a4a829bc810a4f054a61e32b627035646c` |
