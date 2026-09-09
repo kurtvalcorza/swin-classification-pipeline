@@ -23,6 +23,23 @@ families: **Image Classification**, **Semantic Segmentation**, and **Object
 Detection**. Each pipeline shares Swin backbone lineage while keeping a separate
 task head, dataset contract, metrics surface, and finetuning path.
 
+## Open weights / checkpoint provenance
+
+Microsoft Swin Transformer is the architecture/source-of-record. The operational
+weights used by this pipeline are the exact `timm` Hugging Face artifacts bound in
+`provenance/open-weights.json` by immutable repository revision and
+`model.safetensors` SHA-256.
+
+Run the self-contained provenance check with:
+
+```sh
+python scripts/verify_open_weight_provenance.py
+```
+
+This verifies that every `modelDescriptor` in `pipeline-manifest.json` has a
+matching immutable, digest-pinned provenance entry and that runtime network fetch
+and off-catalog selection remain fail-closed.
+
 | Component | Repository | Pinned revision |
 | :--- | :--- | :--- |
 | Dataset validator | [swin-classification-dataset-validator](https://github.com/kurtvalcorza/swin-classification-dataset-validator) | `818d88a4a829bc810a4f054a61e32b627035646c` |
@@ -85,7 +102,9 @@ and logical identity the release names is proven rather than assumed —
   agrees with its worker manifest, and each manifest declares its expected role.
 
 All three checkouts are required. A missing worker checkout is reported as a
-failed check and a non-zero exit, never as a silent pass.
+failed check and a non-zero exit, never as a silent pass. The narrower
+`verify_image_release.py` and `verify_open_weight_provenance.py` checks are
+self-contained and do not require the external source trees.
 
 The contract-identity checks are **gates, not checks**: they run before
 `ML_WORKER_SRC/src` is placed on `sys.path`, because importing contract code
@@ -112,3 +131,7 @@ Layer-1 (worker repos + this umbrella) of the three-layer freeze program. The
 layer-2 contract PR (image-folder representation profile, required-audits entries,
 NATIVE audits) and layer-3 freeze-ledger extension live in the ml-worker stack
 and are tracked in the spec (`#1`).
+
+The currently pinned worker images still predate their `.dockerignore` fixes;
+rebuilding and repinning those images remains an Executor/worker-repo dependency
+tracked by PR #4 and is intentionally not papered over by this pipeline-only pass.
