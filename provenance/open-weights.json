@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "1.0",
+  "pipelineId": "org.valcorza.swin-classification",
+  "task": "image-classification",
+  "architectureSourceOfRecord": {
+    "repository": "microsoft/Swin-Transformer",
+    "upstreamTask": "Image Classification",
+    "canonicalBenchmark": "ImageNet-1K"
+  },
+  "operationalWeights": [
+    {
+      "catalogKey": "swinv2-tiny-window8-256-ms-in1k",
+      "modelDescriptorId": "org.timm.swinv2-tiny-window8-256-ms-in1k",
+      "modelDescriptorVersion": "650d02aabf05e8adbd060a739ab39e39f53da639",
+      "distributionRepository": "timm/swinv2_tiny_window8_256.ms_in1k",
+      "distribution": "huggingface",
+      "file": "model.safetensors",
+      "sha256": "c47f52b4556ff4436aa9502f5efbc93aac77fdab42d9d70dd845931757ff5d65",
+      "pretraining": "ImageNet-1K",
+      "status": "qualified"
+    },
+    {
+      "catalogKey": "swinv2-small-window8-256-ms-in1k",
+      "modelDescriptorId": "org.timm.swinv2-small-window8-256-ms-in1k",
+      "modelDescriptorVersion": "0c9500fcde4c689e97ff51954debae59c158af0d",
+      "distributionRepository": "timm/swinv2_small_window8_256.ms_in1k",
+      "distribution": "huggingface",
+      "file": "model.safetensors",
+      "sha256": "7e793c2f3576d20b5f746ac5dc6b7271745d612f9ce06ccabe382c36f39f1caa",
+      "pretraining": "ImageNet-1K",
+      "status": "qualified"
+    }
+  ],
+  "policy": {
+    "runtimeNetworkFetch": "DENY",
+    "offCatalogSelection": "REFUSE",
+    "mirrorIsUpstreamSource": false,
+    "requireImmutableRevision": true,
+    "requireFileSha256": true
+  }
+}
