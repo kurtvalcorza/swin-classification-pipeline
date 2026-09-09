@@ -12,7 +12,7 @@ original Microsoft Swin Transformer project.
 
 - **Upstream project:** [Microsoft Swin Transformer](https://github.com/microsoft/Swin-Transformer)
 - **Upstream task:** Image Classification
-- **Canonical benchmark:** ImageNet-1K (with ImageNet-22K pretraining used by some upstream variants)
+- **Canonical benchmark:** ImageNet-1K
 - **Reference architecture:** Swin/SwinV2 backbone + image-classification head
 - **Pipeline task boundary:** image → class label
 - **Primary metrics:** top-1 accuracy; top-5 accuracy where applicable
