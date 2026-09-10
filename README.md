@@ -125,6 +125,18 @@ FINETUNER_SRC=<finetuner checkout> \
     python scripts/negative_controls.py
 ```
 
+### Cloud verification (Kaggle clean room)
+
+The three verification gates were executed end-to-end in an isolated Kaggle cloud container:
+
+- **Kernel:** [`kurtvalcorza/swin-classification-verify`](https://www.kaggle.com/code/kurtvalcorza/swin-classification-verify)
+- **Status:** `KernelWorkerStatus.COMPLETE` (Exit Code 0)
+- **Environment:** Linux `6.12.90+` x86_64, Python `3.12.13`
+- **Gate 1 (`scripts/verify_image_release.py`):** 7/7 checks passed (0.12s) — smoke status `PASSED`, validator and finetuner image digests bound to evidence.
+- **Gate 2 (`scripts/verify_release.py`):** 32/32 checks passed (0.53s) — contract verified clean at pinned revision `0f0c221`, validator at `52d1fd0`, finetuner at `0621a11`, manifests and composition report reproduced.
+- **Gate 3 (`scripts/negative_controls.py`):** 7/7 controls discriminated (1.36s) — baseline verifies (`exit 0`), unproved/dirty/non-git contract refused (`exit 1`), duplicate keys refused (`exit 1`).
+- **Machine-readable evidence:** [`evidence/release-verification-kaggle.json`](file:///evidence/release-verification-kaggle.json)
+
 ## Status
 
 Layer-1 (worker repos + this umbrella) of the three-layer freeze program. The
