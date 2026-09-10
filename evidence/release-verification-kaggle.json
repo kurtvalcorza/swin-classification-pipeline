@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "1.0",
+  "pipelineId": "org.valcorza.swin-classification",
+  "task": "image-classification",
+  "verificationTarget": {
+    "repository": "kurtvalcorza/swin-classification-pipeline",
+    "targetCommit": "25846c639edcb8d27cc9a7e32bfd63eb34d215e2",
+    "targetBranch": "build/native-pipeline-v1"
+  },
+  "executionEnvironment": {
+    "platform": "kaggle-cloud",
+    "kernelSlug": "kurtvalcorza/swin-classification-verify",
+    "kernelVersion": 3,
+    "kernelUrl": "https://www.kaggle.com/code/kurtvalcorza/swin-classification-verify",
+    "os": "Linux-6.12.90+-x86_64",
+    "python": "3.12.13",
+    "cpu": "Intel Xeon",
+    "vCPUs": 4,
+    "memoryGB": 30,
+    "executedAt": "2026-09-10T04:34:40Z"
+  },
+  "dependencies": {
+    "contract": {
+      "repository": "kurtvalcorza/ml-worker",
+      "commit": "0f0c221222402721ee7716edf01378604cbd6ef3",
+      "delivery": "embedded-git-bundle"
+    },
+    "validator": {
+      "repository": "kurtvalcorza/swin-classification-dataset-validator",
+      "pinnedManifestSourceRevision": "52d1fd0ca9af5bfd413b0cd7cc1e3f441560fa95",
+      "checkoutCommit": "818d88a4a829bc810a4f054a61e32b627035646c",
+      "delivery": "embedded-all-refs-git-bundle"
+    },
+    "finetuner": {
+      "repository": "kurtvalcorza/swin-classification-finetuner",
+      "pinnedManifestSourceRevision": "0621a11c1cdb6749984aaaca6919086e5c2a7d65",
+      "checkoutCommit": "7025c875847d7e75dcad2a1f7f15fd1275a8d9f0",
+      "delivery": "embedded-all-refs-git-bundle"
+    }
+  },
+  "gateResults": {
+    "gate1_verify_image_release": {
+      "command": "python scripts/verify_image_release.py",
+      "exitCode": 0,
+      "checksPassed": "7/7",
+      "wallSeconds": 0.12
+    },
+    "gate2_verify_release": {
+      "command": "python scripts/verify_release.py",
+      "exitCode": 0,
+      "checksPassed": "32/32",
+      "wallSeconds": 0.53
+    },
+    "gate3_negative_controls": {
+      "command": "python scripts/negative_controls.py",
+      "exitCode": 0,
+      "controlsDiscriminated": "7/7",
+      "wallSeconds": 1.36
+    }
+  },
+  "overallStatus": "PASSED"
+}
