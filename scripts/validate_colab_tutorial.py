@@ -27,7 +27,11 @@ def main() -> int:
     nb = json.loads(NOTEBOOK.read_text(encoding="utf-8"))
     meta = nb.get("metadata", {}).get("dimer", {})
     assert meta.get("notebook_profile") == "E2E", meta
-    assert meta.get("notebook_spec_version") == "1.0", meta
+    # NOTEBOOK_SPEC requires the normative profile declaration but does not prescribe a
+    # metadata key for the spec version. Preserve this repository's `notebook_spec` key
+    # while accepting the `_version` spelling used by sibling repositories.
+    spec_value = meta.get("notebook_spec", meta.get("notebook_spec_version"))
+    assert spec_value == "1.0", meta
 
     code = _text(nb, "code")
     markdown = _text(nb, "markdown")
