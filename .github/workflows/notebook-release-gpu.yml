@@ -12,7 +12,8 @@ concurrency:
 
 jobs:
   execute-notebook:
-    # The notebook's normative E2E path requires CUDA and private worker sources.
+    # The notebook's normative E2E path requires CUDA. The worker repositories are public; the
+    # optional DIMER_WORKER_READ_TOKEN only matters when this workflow runs in a private fork.
     runs-on: [self-hosted, linux, x64, gpu]
     timeout-minutes: 75
     env:
@@ -28,11 +29,10 @@ jobs:
         with:
           python-version: "3.12.14"
 
-      - name: Verify GPU and private-source prerequisites
+      - name: Verify GPU prerequisites
         run: |
           if [[ -z "${GITHUB_TOKEN:-}" ]]; then
-            echo "DIMER_WORKER_READ_TOKEN is required to read the private validator and finetuner repositories." >&2
-            exit 1
+            echo "No DIMER_WORKER_READ_TOKEN set; the public worker repositories will be cloned anonymously."
           fi
           nvidia-smi
           python - <<'PY'
