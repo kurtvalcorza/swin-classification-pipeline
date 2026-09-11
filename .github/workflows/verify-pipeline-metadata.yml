@@ -1,0 +1,22 @@
+name: verify-pipeline-metadata
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Verify Pipeline Spec 1.0 metadata (lifecycle, topology, capability, redistribution)
+        run: python scripts/verify_pipeline_metadata.py
+      - name: Negative controls for the metadata verifier
+        run: python scripts/negative_controls_metadata.py

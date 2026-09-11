@@ -1,0 +1,189 @@
+{
+  "schemaVersion": "1.0",
+  "pipeline_spec": "1.0",
+  "pipeline": {
+    "id": "org.valcorza.swin-classification",
+    "version": "0.1.0",
+    "lifecycle_status": "candidate",
+    "implementation_topology": "COMPOSED-WORKERS",
+    "capability_modes": [
+      "GRADIENT-ADAPTATION"
+    ],
+    "task_profile": "core.task.vision.image-classification",
+    "dataset_representations": [
+      "core.dataset.vision.image-folder"
+    ],
+    "capabilities": [
+      "image-folder dataset validation",
+      "supervised full-network fine-tuning of an allowlisted SwinV2 checkpoint",
+      "content-addressed model artifact publication with fresh-reload evaluation"
+    ]
+  },
+  "source": {
+    "repository": "kurtvalcorza/swin-classification-pipeline"
+  },
+  "contract": {
+    "repository": "kurtvalcorza/ml-worker",
+    "revision": "0f0c221222402721ee7716edf01378604cbd6ef3",
+    "release_digest": "sha256:ef018df28a1bbf547663bdc47d9152364515f34bee2f885566304915459c5ced"
+  },
+  "components": [
+    {
+      "role": "validator",
+      "worker_id": "org.valcorza.swin-classification-dataset-validator",
+      "repository": "kurtvalcorza/swin-classification-dataset-validator",
+      "source_revision": "52d1fd0ca9af5bfd413b0cd7cc1e3f441560fa95",
+      "release_file": "release/worker-release-validator.json",
+      "release_digest": "sha256:a3c094a8b8ac61e14abdaf5732b08e70211b16c415ec6cb3d75ebd193d524fab",
+      "owns": [
+        "input validation",
+        "split ownership",
+        "logical dataset identity"
+      ]
+    },
+    {
+      "role": "finetuner",
+      "worker_id": "org.valcorza.swin-classification-finetuner",
+      "repository": "kurtvalcorza/swin-classification-finetuner",
+      "source_revision": "0621a11c1cdb6749984aaaca6919086e5c2a7d65",
+      "release_file": "release/worker-release-finetuner.json",
+      "release_digest": "sha256:15355e676cb31393bed074179aa372b098b48852eb49f472413fdfd197dae137",
+      "owns": [
+        "base-model resolution and digest verification",
+        "gradient adaptation",
+        "artifact production",
+        "fresh-reload evaluation"
+      ]
+    }
+  ],
+  "composition": {
+    "status": "COMPATIBLE",
+    "report_file": "release/composition-report.json",
+    "report_digest": "sha256:4e72b3ff0ed08617c31379548dc97c3e2c2a559fb1ceb8e91c4fcac9d403ed15"
+  },
+  "models": [
+    {
+      "catalog_key": "swinv2-tiny-window8-256-ms-in1k",
+      "model_descriptor_id": "org.timm.swinv2-tiny-window8-256-ms-in1k",
+      "id": "timm/swinv2_tiny_window8_256.ms_in1k",
+      "distribution": "huggingface",
+      "revision": "650d02aabf05e8adbd060a739ab39e39f53da639",
+      "license": "MIT",
+      "license_source": "Hugging Face model card front matter (`license: mit`) and timm `pretrained_cfg.license` in config.json at the pinned revision",
+      "license_review": {
+        "reviewer": "kurtvalcorza",
+        "date": "2026-09-11",
+        "scope": "redistribution of the pinned model.safetensors bytes inside DIMER worker images and snapshots"
+      },
+      "redistribution_status": "permitted",
+      "use_restriction_notes": [
+        "Pretrained on ImageNet-1k, whose dataset access terms are limited to non-commercial research and education; whether those terms bind derived weights is contested and is the deploying operator's determination, recorded in MODEL_CARD.md."
+      ],
+      "remote_code_required": false,
+      "serialization": "safetensors",
+      "files": [
+        {
+          "path": "model.safetensors",
+          "size": 114918618,
+          "sha256": "c47f52b4556ff4436aa9502f5efbc93aac77fdab42d9d70dd845931757ff5d65"
+        }
+      ]
+    },
+    {
+      "catalog_key": "swinv2-small-window8-256-ms-in1k",
+      "model_descriptor_id": "org.timm.swinv2-small-window8-256-ms-in1k",
+      "id": "timm/swinv2_small_window8_256.ms_in1k",
+      "distribution": "huggingface",
+      "revision": "0c9500fcde4c689e97ff51954debae59c158af0d",
+      "license": "MIT",
+      "license_source": "Hugging Face model card front matter (`license: mit`) and timm `pretrained_cfg.license` in config.json at the pinned revision",
+      "license_review": {
+        "reviewer": "kurtvalcorza",
+        "date": "2026-09-11",
+        "scope": "redistribution of the pinned model.safetensors bytes inside DIMER worker images and snapshots"
+      },
+      "redistribution_status": "permitted",
+      "use_restriction_notes": [
+        "Pretrained on ImageNet-1k, whose dataset access terms are limited to non-commercial research and education; whether those terms bind derived weights is contested and is the deploying operator's determination, recorded in MODEL_CARD.md."
+      ],
+      "remote_code_required": false,
+      "serialization": "safetensors",
+      "files": [
+        {
+          "path": "model.safetensors",
+          "size": 200858626,
+          "sha256": "7e793c2f3576d20b5f746ac5dc6b7271745d612f9ce06ccabe382c36f39f1caa"
+        }
+      ]
+    }
+  ],
+  "runtime": {
+    "qualified_environment": {
+      "python": "3.11.13",
+      "torch": "2.8.0+cu128",
+      "timm": "1.0.28",
+      "pillow": "12.3.0",
+      "accelerator": "cuda:0 (NVIDIA GPU) required; no CPU fallback",
+      "precision": "fp32",
+      "device": "NVIDIA GeForce RTX 5070 Ti Laptop GPU",
+      "peak_reserved_vram_mib_batch8": {
+        "swinv2-tiny-window8-256-ms-in1k": 1724,
+        "swinv2-small-window8-256-ms-in1k": 2732
+      },
+      "source": "swin-classification-finetuner@0621a11 catalog/base-model-catalog.json qualification.measuredEnvelope and qualification/image-ff4297dd/pip-freeze.txt"
+    }
+  },
+  "input": {
+    "schema_version": "1.0",
+    "contract": "core.dataset.vision.image-folder: train/<class>/*, val|valid/<class>/*, optional test/<class>/*; extensions .jpg .jpeg .png .bmp .tif .tiff .webp; EXIF orientation normalised; every image converted to RGB and resized to 256x256"
+  },
+  "output": {
+    "schema_version": "1.0",
+    "contract": "one logit per class in the validator-frozen labelMap order; argmax decision rule; softmax scores uncalibrated; evaluation-report.json metrics core.metric.classification.accuracy and org.valcorza.metric.classification.cross-entropy"
+  },
+  "artifact": {
+    "produces_artifact": true,
+    "format_version": "1.0",
+    "members": [
+      "model.safetensors",
+      "model-config.json",
+      "artifact-manifest.json"
+    ]
+  },
+  "network": {
+    "acquisition_required": true,
+    "inference_required": false,
+    "running_outbound": "DENY",
+    "custom_code": "DENY"
+  },
+  "release_gates": {
+    "composition_verification": {
+      "status": "PASS",
+      "evidence": "evidence/release-verification-kaggle.json (verify_release.py 32/32, negative_controls 7/7)"
+    },
+    "open_weight_provenance": {
+      "status": "PASS",
+      "evidence": "scripts/verify_open_weight_provenance.py in CI"
+    },
+    "real_model_execution": {
+      "status": "PASS",
+      "evidence": "finetuner qualification packets bound by release/worker-release-finetuner.json conformanceEvidenceDigests (blackwell-training-smoke-cf3f429.json, blackwell-timm-1.0.28.json)"
+    },
+    "model_card": {
+      "status": "OPEN",
+      "evidence": "MODEL_CARD.md present; structural checks pass; content review pending"
+    },
+    "notebook_conformance": {
+      "status": "OPEN",
+      "evidence": "tutorials/README.md registry: E2E notebook is Candidate; clean-runtime execution not yet recorded (tutorials/RELEASE_VERIFICATION.md)"
+    },
+    "public_predict_operation": {
+      "status": "OPEN",
+      "evidence": "finetuner exposes no load-and-predict operation (Pipeline Spec API7/ARCH2); MODEL_CARD.md Known gaps"
+    },
+    "dimer_serving_integration": {
+      "status": "OPEN",
+      "evidence": "no serving worker or DIMER serving E2E exists for this pipeline"
+    }
+  }
+}
