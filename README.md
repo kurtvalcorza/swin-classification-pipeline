@@ -42,11 +42,13 @@ and off-catalog selection remain fail-closed.
 
 | Component | Repository | Pinned revision |
 | :--- | :--- | :--- |
-| Dataset validator | [swin-classification-dataset-validator](https://github.com/kurtvalcorza/swin-classification-dataset-validator) | `818d88a4a829bc810a4f054a61e32b627035646c` |
-| Finetuner | [swin-classification-finetuner](https://github.com/kurtvalcorza/swin-classification-finetuner) | `7025c875847d7e75dcad2a1f7f15fd1275a8d9f0` |
+| Dataset validator | [swin-classification-dataset-validator](https://github.com/kurtvalcorza/swin-classification-dataset-validator) | `52d1fd0ca9af5bfd413b0cd7cc1e3f441560fa95` |
+| Finetuner | [swin-classification-finetuner](https://github.com/kurtvalcorza/swin-classification-finetuner) | `0621a11c1cdb6749984aaaca6919086e5c2a7d65` |
 | Contract | [ml-worker](https://github.com/kurtvalcorza/ml-worker) `build/dimer-v1-freeze` | `0f0c221222402721ee7716edf01378604cbd6ef3` |
 
-Worker source revisions are exact immutable commits, independent of branch state.
+Worker source revisions are exact immutable commits, independent of branch state; the
+values above are the `sourceRevision` fields of `release/worker-release-*.json`, which are
+the source of truth if this table ever disagrees.
 
 ## Pipeline surface
 
@@ -137,7 +139,22 @@ The three verification gates were executed end-to-end in an isolated Kaggle clou
 - **Gate 3 (`scripts/negative_controls.py`):** 7/7 controls discriminated (1.36s) — baseline verifies (`exit 0`), unproved/dirty/non-git contract refused (`exit 1`), duplicate keys refused (`exit 1`).
 - **Machine-readable evidence:** [`evidence/release-verification-kaggle.json`](file:///evidence/release-verification-kaggle.json)
 
+## Model card and specifications
+
+`MODEL_CARD.md` (DIMER Model Card Specification 1.0) records intended use, factors,
+metrics, mitigations, risks and prohibited uses for this pipeline, with every claim
+tied to the pinned worker revisions above. `tutorials/README.md` is the notebook
+registry (DIMER Notebook Specification 1.0).
+
 ## Status
+
+**Lifecycle:** `candidate` — implementation topology `COMPOSED-WORKERS`, capability mode
+`GRADIENT-ADAPTATION` (DIMER Pipeline Specification 1.0 §3). The composition is verified
+and reproducible, but release gates remain open: DIMER serving integration, machine-readable
+`redistribution_status` for the two base checkpoints, a public load-and-predict operation in
+the finetuner, and clean-runtime execution evidence for the tutorial. The repository is not
+release-ready and must not be represented as such.
+
 
 Layer-1 (worker repos + this umbrella) of the three-layer freeze program. The
 layer-2 contract PR (image-folder representation profile, required-audits entries,
