@@ -51,7 +51,7 @@ def main() -> int:
         ast.parse("\n".join(python_lines))
 
     required_code = (
-        'PIPELINE_REF = "e73a8aee9881093861bbd934b8476626fad23f12"',
+        'PIPELINE_REF = "3e4087ab03d11a60f7ca4d54c4773e31fcfb188a"',
         "def resolve_github_token(",
         "def private_git_env(",
         '"GIT_CONFIG_KEY_0": "http.https://github.com/.extraHeader"',

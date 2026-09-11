@@ -112,7 +112,7 @@ jobs:
             echo "## Swin Classification Notebook Spec v1 GPU release execution"
             echo
             echo "- Notebook candidate SHA: \`${DIMER_NOTEBOOK_REF}\`"
-            echo "- Pinned pipeline revision exercised: \`e73a8aee9881093861bbd934b8476626fad23f12\`"
+            echo "- Pinned pipeline revision exercised: \`3e4087ab03d11a60f7ca4d54c4773e31fcfb188a\`"
             echo "- Runner: \`${RUNNER_OS}\` / \`${RUNNER_ARCH}\`"
             echo "- Python: \`$(python --version 2>&1)\`"
             echo "- GPU: \`$(nvidia-smi --query-gpu=name --format=csv,noheader | head -1)\`"
