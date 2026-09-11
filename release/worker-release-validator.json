@@ -1,13 +1,13 @@
 {
   "schemaVersion": "1.0",
   "workerId": "org.valcorza.swin-classification-dataset-validator",
-  "version": "0.1.0",
-  "imageDigest": "sha256:e51768e8f39c7a29a85eeae223ba7e0d57477717bd93807cce13277e05fda82d",
+  "version": "0.1.1",
+  "imageDigest": "sha256:bcd0f81638786e8e36be5a093a6eff5b66f79e41a4af7acd9c46f230a024b929",
   "workerManifestDigest": "sha256:1d727177a7ca2248a20f8a5c86f4ef14e312d98e9cfaade043e7e96336bf579b",
-  "sourceRevision": "52d1fd0ca9af5bfd413b0cd7cc1e3f441560fa95",
+  "sourceRevision": "7c6e77fd72a79e7debe9ef811fc6c3227d44ce92",
   "contractReleaseDigest": "sha256:ef018df28a1bbf547663bdc47d9152364515f34bee2f885566304915459c5ced",
   "conformanceEvidenceDigests": [
     "sha256:a3cffa345f5c023e5a203ad566dc1d971115ee48278b2d582476239d27456dce",
-    "sha256:b9630c5b8a5085de0f93b751d829a5871cd6b936c942cfbf79de3d3b43c8fe46"
+    "sha256:fa14ffc41dbdc29ca84b907fed5c47ef5c99eaaa95fb4036a5227f8e0c34ad46"
   ]
 }

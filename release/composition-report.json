@@ -1,1 +1,255 @@
-{"checks":[{"evidence":{"actual":"validator","dimension":"worker-role","expected":"validator","subject":"validator"},"reason":null,"requirement":"COMP-002","status":"PASS"},{"evidence":{"actual":"finetuner","dimension":"worker-role","expected":"finetuner","subject":"finetuner"},"reason":null,"requirement":"COMP-002","status":"PASS"},{"evidence":{"dimension":"task","requested":"core.task.vision.image-classification","subject":"validator","supported":["core.task.vision.image-classification"]},"reason":null,"requirement":"COMP-002","status":"PASS"},{"evidence":{"dimension":"task","requested":"core.task.vision.image-classification","subject":"finetuner","supported":["core.task.vision.image-classification"]},"reason":null,"requirement":"COMP-002","status":"PASS"},{"evidence":{"dimension":"dataset-representation","requested":["core.dataset.vision.image-folder"],"subject":"validator","supported":["core.dataset.vision.image-folder"]},"reason":null,"requirement":"COMP-002","status":"PASS"},{"evidence":{"dimension":"artifact-role","requested":["core.artifact.model"],"subject":"finetuner","supported":["core.artifact.model"]},"reason":null,"requirement":"COMP-002","status":"PASS"},{"evidence":{"dimension":"training-method","requested":["core.training.supervised-finetuning"],"subject":"finetuner","supported":["core.training.supervised-finetuning"]},"reason":null,"requirement":"COMP-002","status":"PASS"},{"evidence":{"dimension":"model","index":0,"modelFamily":"org.timm.swinv2","modelId":"org.timm.swinv2-tiny-window8-256-ms-in1k","validatedModels":[["org.timm.swinv2-small-window8-256-ms-in1k","0c9500fcde4c689e97ff51954debae59c158af0d"],["org.timm.swinv2-tiny-window8-256-ms-in1k","650d02aabf05e8adbd060a739ab39e39f53da639"]],"version":"650d02aabf05e8adbd060a739ab39e39f53da639"},"reason":null,"requirement":"COMP-002","status":"PASS"},{"evidence":{"dimension":"model-training-method","requested":["core.training.supervised-finetuning"],"subject":"model[0]","supported":["core.training.supervised-finetuning"]},"reason":null,"requirement":"COMP-002","status":"PASS"},{"evidence":{"allowedMethods":["core.training.supervised-finetuning"],"dimension":"model-training-method-policy","index":0,"modelFamily":"org.timm.swinv2","modelId":"org.timm.swinv2-tiny-window8-256-ms-in1k","modelMethods":["core.training.supervised-finetuning"],"pipelineMethods":["core.training.supervised-finetuning"],"version":"650d02aabf05e8adbd060a739ab39e39f53da639"},"reason":null,"requirement":"COMP-002","status":"PASS"},{"evidence":{"dimension":"model","index":1,"modelFamily":"org.timm.swinv2","modelId":"org.timm.swinv2-small-window8-256-ms-in1k","validatedModels":[["org.timm.swinv2-small-window8-256-ms-in1k","0c9500fcde4c689e97ff51954debae59c158af0d"],["org.timm.swinv2-tiny-window8-256-ms-in1k","650d02aabf05e8adbd060a739ab39e39f53da639"]],"version":"0c9500fcde4c689e97ff51954debae59c158af0d"},"reason":null,"requirement":"COMP-002","status":"PASS"},{"evidence":{"dimension":"model-training-method","requested":["core.training.supervised-finetuning"],"subject":"model[1]","supported":["core.training.supervised-finetuning"]},"reason":null,"requirement":"COMP-002","status":"PASS"},{"evidence":{"allowedMethods":["core.training.supervised-finetuning"],"dimension":"model-training-method-policy","index":1,"modelFamily":"org.timm.swinv2","modelId":"org.timm.swinv2-small-window8-256-ms-in1k","modelMethods":["core.training.supervised-finetuning"],"pipelineMethods":["core.training.supervised-finetuning"],"version":"0c9500fcde4c689e97ff51954debae59c158af0d"},"reason":null,"requirement":"COMP-002","status":"PASS"},{"evidence":{"dimension":"configuration","exposed":{"enum":["swinv2-tiny-window8-256-ms-in1k","swinv2-small-window8-256-ms-in1k"],"type":"string"},"field":"baseModel","subject":"finetuner","supported":{"enum":["swinv2-tiny-window8-256-ms-in1k","swinv2-small-window8-256-ms-in1k"],"type":"string"}},"reason":null,"requirement":"COMP-003","status":"PASS"},{"evidence":{"dimension":"report-input-binding","finetunerWorkerManifestDigest":"sha256:cee86785024f77e6e01386f719b6da67afc86005b09f751f484a6463de3f36ef","pipelineManifestDigest":"sha256:fab1d35b32fe7753452056218905e3cf800d884b4c71c4f37a3b6d265d39f700","solverId":"core.composition.solver-v1","validatorWorkerManifestDigest":"sha256:1d727177a7ca2248a20f8a5c86f4ef14e312d98e9cfaade043e7e96336bf579b"},"reason":null,"requirement":"COMP-007","status":"PASS"}],"finetunerWorkerManifestDigest":"sha256:cee86785024f77e6e01386f719b6da67afc86005b09f751f484a6463de3f36ef","pipelineManifestDigest":"sha256:fab1d35b32fe7753452056218905e3cf800d884b4c71c4f37a3b6d265d39f700","schemaVersion":"1.0","solverId":"core.composition.solver-v1","status":"COMPATIBLE","validatorWorkerManifestDigest":"sha256:1d727177a7ca2248a20f8a5c86f4ef14e312d98e9cfaade043e7e96336bf579b"}
+{
+  "schemaVersion": "1.0",
+  "solverId": "core.composition.solver-v1",
+  "pipelineManifestDigest": "sha256:cb8df4be1d4ff2e20a16bd8645583a539bc4fc242c806d33d4d3c4db3bdc4269",
+  "validatorWorkerManifestDigest": "sha256:1d727177a7ca2248a20f8a5c86f4ef14e312d98e9cfaade043e7e96336bf579b",
+  "finetunerWorkerManifestDigest": "sha256:cee86785024f77e6e01386f719b6da67afc86005b09f751f484a6463de3f36ef",
+  "status": "COMPATIBLE",
+  "checks": [
+    {
+      "requirement": "COMP-002",
+      "status": "PASS",
+      "reason": null,
+      "evidence": {
+        "dimension": "worker-role",
+        "subject": "validator",
+        "expected": "validator",
+        "actual": "validator"
+      }
+    },
+    {
+      "requirement": "COMP-002",
+      "status": "PASS",
+      "reason": null,
+      "evidence": {
+        "dimension": "worker-role",
+        "subject": "finetuner",
+        "expected": "finetuner",
+        "actual": "finetuner"
+      }
+    },
+    {
+      "requirement": "COMP-002",
+      "status": "PASS",
+      "reason": null,
+      "evidence": {
+        "dimension": "task",
+        "subject": "validator",
+        "requested": "core.task.vision.image-classification",
+        "supported": [
+          "core.task.vision.image-classification"
+        ]
+      }
+    },
+    {
+      "requirement": "COMP-002",
+      "status": "PASS",
+      "reason": null,
+      "evidence": {
+        "dimension": "task",
+        "subject": "finetuner",
+        "requested": "core.task.vision.image-classification",
+        "supported": [
+          "core.task.vision.image-classification"
+        ]
+      }
+    },
+    {
+      "requirement": "COMP-002",
+      "status": "PASS",
+      "reason": null,
+      "evidence": {
+        "dimension": "dataset-representation",
+        "subject": "validator",
+        "requested": [
+          "core.dataset.vision.image-folder"
+        ],
+        "supported": [
+          "core.dataset.vision.image-folder"
+        ]
+      }
+    },
+    {
+      "requirement": "COMP-002",
+      "status": "PASS",
+      "reason": null,
+      "evidence": {
+        "dimension": "artifact-role",
+        "subject": "finetuner",
+        "requested": [
+          "core.artifact.model"
+        ],
+        "supported": [
+          "core.artifact.model"
+        ]
+      }
+    },
+    {
+      "requirement": "COMP-002",
+      "status": "PASS",
+      "reason": null,
+      "evidence": {
+        "dimension": "training-method",
+        "subject": "finetuner",
+        "requested": [
+          "core.training.supervised-finetuning"
+        ],
+        "supported": [
+          "core.training.supervised-finetuning"
+        ]
+      }
+    },
+    {
+      "requirement": "COMP-002",
+      "status": "PASS",
+      "reason": null,
+      "evidence": {
+        "dimension": "model",
+        "index": 0,
+        "modelId": "org.timm.swinv2-tiny-window8-256-ms-in1k",
+        "version": "650d02aabf05e8adbd060a739ab39e39f53da639",
+        "modelFamily": "org.timm.swinv2",
+        "validatedModels": [
+          [
+            "org.timm.swinv2-small-window8-256-ms-in1k",
+            "0c9500fcde4c689e97ff51954debae59c158af0d"
+          ],
+          [
+            "org.timm.swinv2-tiny-window8-256-ms-in1k",
+            "650d02aabf05e8adbd060a739ab39e39f53da639"
+          ]
+        ]
+      }
+    },
+    {
+      "requirement": "COMP-002",
+      "status": "PASS",
+      "reason": null,
+      "evidence": {
+        "dimension": "model-training-method",
+        "subject": "model[0]",
+        "requested": [
+          "core.training.supervised-finetuning"
+        ],
+        "supported": [
+          "core.training.supervised-finetuning"
+        ]
+      }
+    },
+    {
+      "requirement": "COMP-002",
+      "status": "PASS",
+      "reason": null,
+      "evidence": {
+        "dimension": "model-training-method-policy",
+        "index": 0,
+        "modelId": "org.timm.swinv2-tiny-window8-256-ms-in1k",
+        "version": "650d02aabf05e8adbd060a739ab39e39f53da639",
+        "modelFamily": "org.timm.swinv2",
+        "pipelineMethods": [
+          "core.training.supervised-finetuning"
+        ],
+        "modelMethods": [
+          "core.training.supervised-finetuning"
+        ],
+        "allowedMethods": [
+          "core.training.supervised-finetuning"
+        ]
+      }
+    },
+    {
+      "requirement": "COMP-002",
+      "status": "PASS",
+      "reason": null,
+      "evidence": {
+        "dimension": "model",
+        "index": 1,
+        "modelId": "org.timm.swinv2-small-window8-256-ms-in1k",
+        "version": "0c9500fcde4c689e97ff51954debae59c158af0d",
+        "modelFamily": "org.timm.swinv2",
+        "validatedModels": [
+          [
+            "org.timm.swinv2-small-window8-256-ms-in1k",
+            "0c9500fcde4c689e97ff51954debae59c158af0d"
+          ],
+          [
+            "org.timm.swinv2-tiny-window8-256-ms-in1k",
+            "650d02aabf05e8adbd060a739ab39e39f53da639"
+          ]
+        ]
+      }
+    },
+    {
+      "requirement": "COMP-002",
+      "status": "PASS",
+      "reason": null,
+      "evidence": {
+        "dimension": "model-training-method",
+        "subject": "model[1]",
+        "requested": [
+          "core.training.supervised-finetuning"
+        ],
+        "supported": [
+          "core.training.supervised-finetuning"
+        ]
+      }
+    },
+    {
+      "requirement": "COMP-002",
+      "status": "PASS",
+      "reason": null,
+      "evidence": {
+        "dimension": "model-training-method-policy",
+        "index": 1,
+        "modelId": "org.timm.swinv2-small-window8-256-ms-in1k",
+        "version": "0c9500fcde4c689e97ff51954debae59c158af0d",
+        "modelFamily": "org.timm.swinv2",
+        "pipelineMethods": [
+          "core.training.supervised-finetuning"
+        ],
+        "modelMethods": [
+          "core.training.supervised-finetuning"
+        ],
+        "allowedMethods": [
+          "core.training.supervised-finetuning"
+        ]
+      }
+    },
+    {
+      "requirement": "COMP-003",
+      "status": "PASS",
+      "reason": null,
+      "evidence": {
+        "dimension": "configuration",
+        "field": "baseModel",
+        "subject": "finetuner",
+        "exposed": {
+          "type": "string",
+          "enum": [
+            "swinv2-tiny-window8-256-ms-in1k",
+            "swinv2-small-window8-256-ms-in1k"
+          ]
+        },
+        "supported": {
+          "type": "string",
+          "enum": [
+            "swinv2-tiny-window8-256-ms-in1k",
+            "swinv2-small-window8-256-ms-in1k"
+          ]
+        }
+      }
+    },
+    {
+      "requirement": "COMP-007",
+      "status": "PASS",
+      "reason": null,
+      "evidence": {
+        "dimension": "report-input-binding",
+        "solverId": "core.composition.solver-v1",
+        "pipelineManifestDigest": "sha256:cb8df4be1d4ff2e20a16bd8645583a539bc4fc242c806d33d4d3c4db3bdc4269",
+        "validatorWorkerManifestDigest": "sha256:1d727177a7ca2248a20f8a5c86f4ef14e312d98e9cfaade043e7e96336bf579b",
+        "finetunerWorkerManifestDigest": "sha256:cee86785024f77e6e01386f719b6da67afc86005b09f751f484a6463de3f36ef"
+      }
+    }
+  ]
+}
