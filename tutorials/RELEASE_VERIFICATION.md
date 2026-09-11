@@ -1,37 +1,56 @@
 # Swin Classification Tutorial Release Verification
 
-DIMER Notebook Specification 1.0 requires clean-runtime execution evidence in addition to static source conformance. This file is the durable release-gate record for `tutorials/swin_classification_colab.ipynb` (`E2E`).
+DIMER Notebook Specification 1.0 requires clean-runtime execution evidence (REL1/REL5) in addition to static source conformance. This file is the durable release-gate record for `tutorials/swin_classification_colab.ipynb` (`E2E`).
 
-## Automatic coverage
+## Automatic coverage (static, every pull request)
 
-Pull-request CI currently verifies:
+`verify-image-release.yml` runs `scripts/validate_colab_tutorial.py`, which checks:
 
-- runnable image-release evidence and its binding to the pinned validator/finetuner WorkerReleases;
-- open-weight/model provenance;
-- notebook JSON/source structure, declared `E2E` profile and Notebook Spec 1.0 identity;
-- clean committed notebook state and Python-cell compilation;
-- secure private-source bootstrap markers and rejection of credential-in-URL patterns;
-- immutable pipeline binding, worker CLI usage, pinned model acquisition/digest verification, CUDA requirement, fresh artifact reload, and machine-readable prediction/provenance export markers.
+- notebook JSON parses; every Python cell compiles; no persisted outputs or execution counts; no `TODO`/`TBD`/`FIXME`;
+- declared `E2E` profile and Notebook Spec `1.0` identity in notebook metadata;
+- the immutable pipeline anchor (`PIPELINE_REF`), pinned-worker checkout, secure private-source bootstrap (ephemeral `extraHeader`, token deleted after use) and rejection of credential-in-URL, `trust_remote_code`, pickle/`torch.load`, `pretrained=True` and `extractall` patterns;
+- worker CLI usage, checkpoint acquisition with SHA-256 verification, the `cuda:0` fail-closed requirement;
+- gated-off BYOD flags, archive-safety function and its rejection messages, expanded-size cap;
+- fresh-directory reload with the finetuner's own preprocessing imports, `strict=True` loading, and the accuracy/cross-entropy equivalence checks;
+- data-derived majority baseline, the four machine-readable exports, and the required learner-facing sections (objectives, exclusions, schema, uncalibrated scores, `argmax`, single holdout, non-bitwise reproducibility, interpretation, troubleshooting, next experiments);
+- every code cell is preceded by an explanatory markdown cell.
 
 These are source/provenance checks. They are **not** REL1/REL5 execution evidence.
 
-A manually dispatched supplemental workflow, `.github/workflows/notebook-release-gpu.yml`, is also available for a self-hosted runner labelled `linux`, `x64`, and `gpu`. It requires repository secret `DIMER_WORKER_READ_TOKEN`, executes the committed notebook top-to-bottom, checks required outputs, and retains an executed notebook plus machine-readable evidence. A run of that workflow is useful executor evidence, but it does not silently broaden the user-facing runtime claim beyond the documented supported Colab path.
+## Executor paths
 
-## Supported release verification
+| Path | Runtime | Token delivery | Role |
+|---|---|---|---|
+| Google Colab (supported user path) | Colab GPU runtime (T4 class) | Colab Secret `GITHUB_TOKEN` | The runtime the tutorial is written for; a clean top-to-bottom run here is the promotion evidence |
+| Kaggle CLI kernel | Kaggle `NvidiaTeslaT4`, Python 3.12 image | Kaggle Secret `GITHUB_TOKEN` attached to the kernel | Reproducible clean-room executor that matches the Colab GPU class; the notebook is pushed verbatim plus one leading shim cell that provides `google.colab` and `/content` |
+| `.github/workflows/notebook-release-gpu.yml` | Self-hosted `linux`/`x64`/`gpu` runner, repository secret `DIMER_WORKER_READ_TOKEN` | Environment variable | Manually dispatched executor; runs the committed notebook with `nbconvert`, asserts the exports and the fresh-boundary equivalence flags, uploads evidence |
+| Local WSL harness (pre-flight only) | Workstation GPU, `run_nb.py` sequential cell executor with a `google.colab` shim | Environment variable | Builder pre-flight to catch defects before spending cloud runs; **not** a supported runtime and not promotion evidence |
+
+## Supported release verification procedure
 
 Before changing the tutorial registry from `Candidate` to `release-grade`:
 
 1. resolve the exact PR/commit head under review and confirm static CI is green;
-2. open that exact notebook revision in a new Google Colab CUDA runtime;
-3. configure a `GITHUB_TOKEN` Colab Secret with read access to the private `swin-classification-dataset-validator` and `swin-classification-finetuner` repositories;
-4. run the notebook top-to-bottom without editing implementation cells;
-5. verify the immutable pipeline/worker revisions reported by the notebook;
-6. verify the allowlisted upstream checkpoint identity and SHA-256 before model use;
-7. verify dataset validation, supervised training, evaluation plus majority baseline, artifact publication, fresh reconstruction, and separate new-image inference all complete;
-8. verify the exported prediction/provenance files exist and the interpretation/limits section matches the observed path;
-9. record the exact notebook SHA, Colab/Python/Torch/torchvision/CUDA/GPU identity, worker/model revisions, result paths, outcome, and any warnings in a durable issue/PR/release record;
-10. do not record access tokens or other secrets.
+2. open that exact notebook revision in a new GPU runtime (Colab, or the Kaggle T4 executor above);
+3. provide a `GITHUB_TOKEN` secret with read access to the private `swin-classification-dataset-validator` and `swin-classification-finetuner` repositories;
+4. run the notebook top-to-bottom without editing implementation cells (form parameters at defaults for the sample path);
+5. verify the immutable pipeline/worker revisions reported by Section 1 match the release files at `PIPELINE_REF`;
+6. verify the checkpoint digest in Section 5 equals the catalog pin before the model is built;
+7. verify dataset validation, fine-tuning on `cuda:0`, evaluation plus majority baseline, fresh-boundary reload with `accuracyMatches` and `crossEntropyMatches` both `true`, and new-image inference all complete;
+8. verify the four exports exist and the interpretation section matches the observed path;
+9. record the notebook SHA-256, commit, runtime (platform, Python, torch, torchvision, CUDA, GPU), worker/model revisions, outcome and any warnings in the table below;
+10. record no access tokens or other secrets.
+
+## Recorded executions
+
+Notebook identity is the SHA-256 of the committed `tutorials/swin_classification_colab.ipynb`; the commit column names the first commit carrying that file content.
+
+| Date (UTC) | Notebook SHA-256 (prefix) | Commit | Executor | Runtime | Path exercised | Outcome |
+|---|---|---|---|---|---|---|
+| 2026-09-11 | `308ffcf4bc4905e6` | see PR #8 head | Local WSL harness (pre-flight, not promotion evidence) | WSL2 Ubuntu 24.04.4 (kernel 6.18.33), Python 3.12.3, torch 2.9.1+cu128, torchvision 0.24.1+cu128, CUDA 12.8, NVIDIA GeForce RTX 5070 Ti Laptop GPU, driver 610.88, timm 1.0.28 | Default sample path, all 10 code cells | PASS — validator `SUCCEEDED`; checkpoint digest matched; train 1 epoch accuracy 1.0 / CE 0.007642; fresh reload `accuracyMatches=true`, `crossEntropyMatches=true` (|Δ| 1.4e-8); new image → `warm`; 4 exports written |
+| 2026-09-11 | `308ffcf4bc4905e6` | see PR #8 head | Local WSL harness (pre-flight, not promotion evidence) | as above | BYOD path: `USE_BYOD_DATASET=True` (27-file ZIP, wrapper folder, 3 classes, EXIF-orientation-6 JPEGs mixed with PNGs), `EPOCHS=3`, `USE_BYOD_IMAGE=True` via `BYOD_IMAGE_PATH` | PASS — expanded 192,077 bytes; validator `SUCCEEDED` with 3 classes; majority baseline 0.333 computed from the data plan; accuracy 1.0; fresh reload PASSED on 9 samples; new image → `dots` |
+| 2026-09-11 | `308ffcf4bc4905e6` | see PR #8 head | Local negative controls on `safe_extract_zip` (function source lifted verbatim from the notebook) | CPython 3.12.3 | `train/../../evil.txt`, `/tmp/evil.txt`, symlink member, `train\..\evil.txt`, 1000-byte expansion cap vs a 192 KB archive | PASS — all five rejected with the expected message; the good archive extracted 27 files |
 
 ## Current status
 
-No clean supported Colab GPU PASS is asserted by this repository record yet. Static CI and the supplemental GPU executor are preparatory controls; the tutorial remains **Candidate** until the supported-runtime evidence is independently reviewed.
+Static CI, the archive-safety controls, and the local pre-flight are preparatory evidence. The tutorial remains **Candidate** until a clean supported-class GPU run (Colab or the Kaggle T4 executor) for the exact notebook SHA above is appended to the table and reviewed.
