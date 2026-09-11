@@ -72,6 +72,7 @@ the source of truth if this table ever disagrees.
 | `release/worker-release-{validator,finetuner}.json` | `worker-release.schema.json` |
 | `release/composition-report.json` | `composition-report.schema.json` — solver output, status `COMPATIBLE` (15/15 checks) |
 | `release/pipeline-release.json` | `pipeline-release.schema.json` — binds every digest above plus the contract release |
+| `pipeline-metadata.json` | DIMER Pipeline Specification 1.0 §28 (repository-owned; not a contract schema) — lifecycle, topology, capability modes, component/contract identities, per-model licence and `redistribution_status`, release gates |
 
 The worker releases pin the shared qualification image
 (`sha256:ff4297dd81798d91c8616dc96fcb61de5cbdeca102afb964562fd52c62b43d47`) and
@@ -149,11 +150,19 @@ registry (DIMER Notebook Specification 1.0).
 ## Status
 
 **Lifecycle:** `candidate` — implementation topology `COMPOSED-WORKERS`, capability mode
-`GRADIENT-ADAPTATION` (DIMER Pipeline Specification 1.0 §3). The composition is verified
-and reproducible, but release gates remain open: DIMER serving integration, machine-readable
-`redistribution_status` for the two base checkpoints, a public load-and-predict operation in
-the finetuner, and clean-runtime execution evidence for the tutorial. The repository is not
-release-ready and must not be represented as such.
+`GRADIENT-ADAPTATION` (DIMER Pipeline Specification 1.0 §3), declared machine-readably in
+[`pipeline-metadata.json`](pipeline-metadata.json) together with the per-checkpoint weight
+licence and `redistribution_status` (`permitted`, MIT, reviewed 2026-09-11; the ImageNet-1k
+pretraining-data terms are recorded as a use-restriction note for operators), the component
+identities, the composition digest and the release gates. `scripts/verify_pipeline_metadata.py`
+cross-checks every value against `pipeline-manifest.json`, `provenance/open-weights.json` and
+`release/*.json`, refuses a `release` lifecycle while any gate is open, and fails `unknown`,
+`prohibited` and unsatisfied `conditional` redistribution states; `scripts/negative_controls_metadata.py`
+proves those refusals (11 controls). Both run in CI (`verify-pipeline-metadata.yml`).
+
+Open release gates: DIMER serving integration, a public load-and-predict operation in the
+finetuner, clean-runtime execution evidence for the tutorial, model-card content review. The
+repository is not release-ready and must not be represented as such.
 
 
 Layer-1 (worker repos + this umbrella) of the three-layer freeze program. The
