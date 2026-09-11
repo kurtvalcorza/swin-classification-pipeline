@@ -60,6 +60,8 @@ def main() -> int:
                lambda d: d["components"][1].__setitem__("source_revision", "f" * 40)),
         mutate("tampered component release digest", "does not equal the canonical digest",
                lambda d: d["components"][0].__setitem__("release_digest", "sha256:" + "1" * 64)),
+        mutate("tampered component image digest", "image_digest disagrees",
+               lambda d: d["components"][1].__setitem__("image_digest", "sha256:" + "2" * 64)),
         mutate("invalid topology", "implementation_topology must be one of",
                lambda d: d["pipeline"].__setitem__("implementation_topology", "NOTEBOOK")),
         mutate("missing license source", "license and license_source are required",

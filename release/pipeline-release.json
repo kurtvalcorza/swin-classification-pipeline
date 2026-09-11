@@ -1,10 +1,10 @@
 {
   "schemaVersion": "1.0",
   "pipelineId": "org.valcorza.swin-classification",
-  "version": "0.1.0",
-  "pipelineManifestDigest": "sha256:fab1d35b32fe7753452056218905e3cf800d884b4c71c4f37a3b6d265d39f700",
-  "validatorWorkerReleaseDigest": "sha256:a3c094a8b8ac61e14abdaf5732b08e70211b16c415ec6cb3d75ebd193d524fab",
-  "finetunerWorkerReleaseDigest": "sha256:15355e676cb31393bed074179aa372b098b48852eb49f472413fdfd197dae137",
+  "version": "0.1.1",
+  "pipelineManifestDigest": "sha256:cb8df4be1d4ff2e20a16bd8645583a539bc4fc242c806d33d4d3c4db3bdc4269",
+  "validatorWorkerReleaseDigest": "sha256:4085c0b620eed34c186da78f9bdf0baa7524fa6cd0b2e5b36078105c75453aa4",
+  "finetunerWorkerReleaseDigest": "sha256:a03808550b69e432a15fb6b9f92bfb0ac8ca49fdc19062be1349eec906a845af",
   "contractReleaseDigest": "sha256:ef018df28a1bbf547663bdc47d9152364515f34bee2f885566304915459c5ced",
-  "compositionReportDigest": "sha256:4e72b3ff0ed08617c31379548dc97c3e2c2a559fb1ceb8e91c4fcac9d403ed15"
+  "compositionReportDigest": "sha256:39b4f5bce6d1b64f0eda9a59529c98ab400aad02dd5d2061240f07201bd7006d"
 }

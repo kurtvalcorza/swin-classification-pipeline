@@ -115,6 +115,8 @@ def verify(meta: dict, root: Path) -> list[str]:
                 errors.append(f"component {role!r}: release_digest {declared!r} does not equal the canonical digest of {release_file.name} ({actual})")
             if manifest.get(manifest_key) != declared:
                 errors.append(f"component {role!r}: pipeline-manifest.json {manifest_key} disagrees with release_digest")
+            if "image_digest" in component and component["image_digest"] != release.get("imageDigest"):
+                errors.append(f"component {role!r}: image_digest disagrees with {release_file.name} imageDigest")
         composition = meta.get("composition") or {}
         report_path = root / str(composition.get("report_file", ""))
         if not report_path.is_file():

@@ -1,45 +1,83 @@
 {
   "schemaVersion": "1.0",
   "status": "PASSED",
-  "description": "End-to-end smoke executed from the runnable worker images themselves: fixture generated in the validator image, validator image produced the handoff, finetuner image trained/published/reloaded from its baked-in weights. Both stages ran with --network none; the finetuner ran with --gpus all.",
+  "description": "End-to-end smoke executed from the runnable worker images themselves: fixture generated in the validator image, validator image produced the handoff, finetuner image trained/published/reloaded from its baked-in weights. Both stages ran with --network none; the finetuner ran with --gpus all. Procedure: C:\\swin-executor\\rebuild-2026-09-11\\{build_images.sh,image_smoke.sh} (Executor host nvidia-container-swin, a clone of the nvidia-container-base golden WSL image).",
   "images": {
     "validator": {
-      "image": "swin-classification-validator:52d1fd0",
-      "imageDigest": "sha256:e51768e8f39c7a29a85eeae223ba7e0d57477717bd93807cce13277e05fda82d",
-      "sourceRevision": "52d1fd0ca9af5bfd413b0cd7cc1e3f441560fa95"
+      "image": "swin-classification-validator:7c6e77f",
+      "imageDigest": "sha256:bcd0f81638786e8e36be5a093a6eff5b66f79e41a4af7acd9c46f230a024b929",
+      "sourceRevision": "7c6e77fd72a79e7debe9ef811fc6c3227d44ce92",
+      "sourceTree": "2a0b78d002b2c7ec826012885e2fdc35aec4eaaa",
+      "imageSizeBytes": 4297143498,
+      "buildContext": "post-.dockerignore: .git/.github/tests absent from /opt/worker/src"
     },
     "finetuner": {
-      "image": "swin-classification-finetuner:0621a11",
-      "imageDigest": "sha256:6b8479f48d98cc81d4776edb7769cb35e02a70593ba8cb10d8ea9b2ec7ba8e0e",
-      "sourceRevision": "0621a11c1cdb6749984aaaca6919086e5c2a7d65",
-      "weightStaging": "downloaded at pinned HF revisions during image build and SHA-256 verified against the catalog (scripts/stage_weights.py); a mismatch fails the build"
+      "image": "swin-classification-finetuner:7063849",
+      "imageDigest": "sha256:bbcbe1ffbc4669e5b919222312e4249bf8a194fcc715c0d61f99781ce45e826f",
+      "sourceRevision": "70638493d081501501506108b23c6937eff770ef",
+      "sourceTree": "0ed4eb3fa7d528193fa4d97bafed1824658f8ebf",
+      "imageSizeBytes": 4599547804,
+      "buildContext": "post-.dockerignore: .git/.github/tests absent from /opt/worker/src",
+      "weightStaging": "downloaded at pinned HF revisions during image build and SHA-256 verified against the catalog (scripts/stage_weights.py); a mismatch fails the build; no Hub cache left in the image"
     }
   },
   "environment": {
     "baseImage": "pytorch/pytorch@sha256:417bd75df6365104c283ea4c1651fb3530d9eb5a4c2fafa51943cff2a94e6385",
     "timm": "1.0.28",
     "torch": "2.8.0+cu128",
-    "device": "cuda:0 (NVIDIA GeForce RTX 5070 Ti Laptop GPU, sm_120)",
+    "runtimeVersions": "pillow 12.3.0 | safetensors 0.8.0 | timm 1.0.28 | huggingface_hub 1.29.0 | torch 2.8.0+cu128 | torchvision 0.23.0+cu128",
+    "device": "cuda:0 (NVIDIA GeForce RTX 5070 Ti Laptop GPU, 610.88, sm_120)",
+    "host": "WSL2 distro nvidia-container-swin, Docker 29.7.2 with the containerd image store, NVIDIA Container Toolkit 1.20.0",
     "network": "none for both worker stages"
   },
   "results": {
     "validator": {
       "state": "SUCCEEDED",
-      "validatedDatasetManifestDigest": "sha256:4d0e4751ecf14c2540f0ae3efc05c4423c3ae7d13b65e8bf4a6dfce666763f4c",
-      "dataPlanDigest": "sha256:46bb7a5a26b490c5d485862c21bdf9bf915265a77d8b34ca06d55c4cb34d415d",
-      "handoffIdenticalToSourceBasedSmoke": true
+      "validatedDatasetManifestDigest": "sha256:f8cc50a20b998c5d419ec6e8eda1bfdd20649df461ccc412b1621bc767b9fa67",
+      "dataPlanDigest": null,
+      "runManifestDigest": "sha256:84557a95ef3c3eb38243927080b54458f9c844aa3bf3215ec714b736de8629de",
+      "l3Findings": [
+        "VISION_DUPLICATE_CONTENT_ACROSS_SPLITS"
+      ]
     },
     "finetuner": {
       "state": "SUCCEEDED",
-      "validationAccuracy": 1.0,
-      "validationCrossEntropy": 0.49435198307037354,
-      "runManifestDigest": "sha256:82a707a0f0362f14251a8aafb41f56d7066464d1b2f40bb2c1dcacbf2cca8ade",
-      "artifactBundleDigest": "sha256:5eb8870b9bcf8406312a703a9824350047d128dc1d67d0cfff04d2ea0530e2ac"
+      "validationAccuracy": 0.5,
+      "validationCrossEntropy": 0.5799034237861633,
+      "runManifestDigest": "sha256:5d82f7477ff46a969d7f529620d101dec5d6f531b1756957097e873c80b55b80",
+      "artifactBundleDigest": "sha256:80c56b069c39f810a6b5756b03c56fcf6f45cd4c6f1975886dde749580181bab",
+      "artifactMembers": [
+        "artifact-manifest.json",
+        "model-config.json",
+        "model.safetensors",
+        "model_manifest.json"
+      ],
+      "modelManifestEmitted": true,
+      "inputImageForms": {
+        "belowInputSize": 8,
+        "conversion": "all non-RGB modes converted to RGB by load_visual_image (alpha dropped, grayscale replicated, palette expanded)",
+        "convertedToRgb": 0,
+        "height": {
+          "max": 64,
+          "min": 64
+        },
+        "images": 8,
+        "modes": {
+          "RGB": 8
+        },
+        "nonSquare": 0,
+        "resize": "every image resized to 256x256 without preserving aspect ratio",
+        "width": {
+          "max": 64,
+          "min": 64
+        }
+      },
+      "reproducibility": "REEXECUTABLE"
     }
   },
   "limitations": [
-    "Bounded fixture smoke from the worker images; not production-scale.",
-    "Image digests are the local containerd manifest-list digests; they become registry digests unchanged on push.",
-    "Training remains REEXECUTABLE: cross-entropy differs from the source-based smoke in the 7th decimal."
+    "Bounded 8-image fixture smoke from the worker images; not production-scale.",
+    "Image digests are the local containerd manifest digests; they become registry digests unchanged on push.",
+    "Training remains REEXECUTABLE: cross-entropy is not bitwise reproducible across runs."
   ]
 }

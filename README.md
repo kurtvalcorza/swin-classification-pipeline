@@ -42,8 +42,8 @@ and off-catalog selection remain fail-closed.
 
 | Component | Repository | Pinned revision |
 | :--- | :--- | :--- |
-| Dataset validator | [swin-classification-dataset-validator](https://github.com/kurtvalcorza/swin-classification-dataset-validator) | `52d1fd0ca9af5bfd413b0cd7cc1e3f441560fa95` |
-| Finetuner | [swin-classification-finetuner](https://github.com/kurtvalcorza/swin-classification-finetuner) | `0621a11c1cdb6749984aaaca6919086e5c2a7d65` |
+| Dataset validator | [swin-classification-dataset-validator](https://github.com/kurtvalcorza/swin-classification-dataset-validator) | `7c6e77fd72a79e7debe9ef811fc6c3227d44ce92` |
+| Finetuner | [swin-classification-finetuner](https://github.com/kurtvalcorza/swin-classification-finetuner) | `70638493d081501501506108b23c6937eff770ef` |
 | Contract | [ml-worker](https://github.com/kurtvalcorza/ml-worker) `build/dimer-v1-freeze` | `0f0c221222402721ee7716edf01378604cbd6ef3` |
 
 Worker source revisions are exact immutable commits, independent of branch state; the
@@ -74,12 +74,19 @@ the source of truth if this table ever disagrees.
 | `release/pipeline-release.json` | `pipeline-release.schema.json` — binds every digest above plus the contract release |
 | `pipeline-metadata.json` | DIMER Pipeline Specification 1.0 §28 (repository-owned; not a contract schema) — lifecycle, topology, capability modes, component/contract identities, per-model licence and `redistribution_status`, release gates |
 
-The worker releases pin the shared qualification image
-(`sha256:ff4297dd81798d91c8616dc96fcb61de5cbdeca102afb964562fd52c62b43d47`) and
-reference the finetuner repo's executed evidence packets
+The worker releases (0.1.1) pin the **runnable worker images** built from the
+revisions above — validator `sha256:bcd0f816…`, finetuner `sha256:bbcbe1ff…`
+(containerd manifest digests; unchanged on push) — and cite as conformance
+evidence the finetuner repo's executed packets
 (`qualification/blackwell-training-smoke-cf3f429.json` — source-bound GPU smoke —
 and `qualification/blackwell-timm-1.0.28.json` — Blackwell runtime qualification)
-as conformance evidence.
+plus `release/image-smoke-evidence.json`: the end-to-end smoke run **from those
+images** on 2026-09-11 (fixture in the validator image → validator handoff →
+finetuner train/publish/reload from baked-in weights, `--network none`, `--gpus all`,
+RTX 5070 Ti; 14/14 emitted documents schema-valid against `ml-worker@0f0c221`).
+Both images were built from post-`.dockerignore` revisions (`.git`/`.github`
+absent from `/opt/worker/src`), which closes review finding R1. The exact
+Executor procedure is committed under `scripts/executor/`.
 
 ## Verify
 

@@ -3,7 +3,7 @@
   "pipeline_spec": "1.0",
   "pipeline": {
     "id": "org.valcorza.swin-classification",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "lifecycle_status": "candidate",
     "implementation_topology": "COMPOSED-WORKERS",
     "capability_modes": [
@@ -32,34 +32,36 @@
       "role": "validator",
       "worker_id": "org.valcorza.swin-classification-dataset-validator",
       "repository": "kurtvalcorza/swin-classification-dataset-validator",
-      "source_revision": "52d1fd0ca9af5bfd413b0cd7cc1e3f441560fa95",
+      "source_revision": "7c6e77fd72a79e7debe9ef811fc6c3227d44ce92",
       "release_file": "release/worker-release-validator.json",
-      "release_digest": "sha256:a3c094a8b8ac61e14abdaf5732b08e70211b16c415ec6cb3d75ebd193d524fab",
+      "release_digest": "sha256:4085c0b620eed34c186da78f9bdf0baa7524fa6cd0b2e5b36078105c75453aa4",
       "owns": [
         "input validation",
         "split ownership",
         "logical dataset identity"
-      ]
+      ],
+      "image_digest": "sha256:bcd0f81638786e8e36be5a093a6eff5b66f79e41a4af7acd9c46f230a024b929"
     },
     {
       "role": "finetuner",
       "worker_id": "org.valcorza.swin-classification-finetuner",
       "repository": "kurtvalcorza/swin-classification-finetuner",
-      "source_revision": "0621a11c1cdb6749984aaaca6919086e5c2a7d65",
+      "source_revision": "70638493d081501501506108b23c6937eff770ef",
       "release_file": "release/worker-release-finetuner.json",
-      "release_digest": "sha256:15355e676cb31393bed074179aa372b098b48852eb49f472413fdfd197dae137",
+      "release_digest": "sha256:a03808550b69e432a15fb6b9f92bfb0ac8ca49fdc19062be1349eec906a845af",
       "owns": [
         "base-model resolution and digest verification",
         "gradient adaptation",
         "artifact production",
         "fresh-reload evaluation"
-      ]
+      ],
+      "image_digest": "sha256:bbcbe1ffbc4669e5b919222312e4249bf8a194fcc715c0d61f99781ce45e826f"
     }
   ],
   "composition": {
     "status": "COMPATIBLE",
     "report_file": "release/composition-report.json",
-    "report_digest": "sha256:4e72b3ff0ed08617c31379548dc97c3e2c2a559fb1ceb8e91c4fcac9d403ed15"
+    "report_digest": "sha256:39b4f5bce6d1b64f0eda9a59529c98ab400aad02dd5d2061240f07201bd7006d"
   },
   "models": [
     {
