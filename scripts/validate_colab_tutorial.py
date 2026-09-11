@@ -78,6 +78,8 @@ def main() -> int:
         "from swin_classification_finetuner.trainer import NORMALIZATION_MEAN, NORMALIZATION_STD, load_visual_image",
         "load_file(",
         "strict=True",
+        'recorded = {step["id"]: step for step in model_config["transforms"]["validation"]}',
+        "artifact normalisation differs from the installed worker's constants",
         '"accuracyMatches"',
         '"crossEntropyMatches"',
         # baseline computed from the validator's data plan, not hard-coded
@@ -124,6 +126,7 @@ def main() -> int:
         "single holdout",
         "not bitwise reproducible",
         "Fresh-boundary verification",
+        "Known pipeline gap",
         "Interpretation and limits",
         "does **not** prove",
         "Troubleshooting",

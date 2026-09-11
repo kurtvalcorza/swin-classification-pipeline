@@ -43,14 +43,21 @@ Before changing the tutorial registry from `Candidate` to `release-grade`:
 
 ## Recorded executions
 
-Notebook identity is the SHA-256 of the committed `tutorials/swin_classification_colab.ipynb`; the commit column names the first commit carrying that file content.
+Notebook identity is the Git blob id of `tutorials/swin_classification_colab.ipynb` (verify with `git rev-parse <commit>:tutorials/swin_classification_colab.ipynb`) together with the SHA-256 of the committed LF bytes. The local harness executed the Windows working copy (CRLF), which is JSON-identical to the committed blob. Wall times are the sum of per-cell times reported by the harness and include installs and the checkpoint download; they are measurements for the stated runtime, not general estimates.
 
-| Date (UTC) | Notebook SHA-256 (prefix) | Commit | Executor | Runtime | Path exercised | Outcome |
-|---|---|---|---|---|---|---|
-| 2026-09-11 | `308ffcf4bc4905e6` | see PR #8 head | Local WSL harness (pre-flight, not promotion evidence) | WSL2 Ubuntu 24.04.4 (kernel 6.18.33), Python 3.12.3, torch 2.9.1+cu128, torchvision 0.24.1+cu128, CUDA 12.8, NVIDIA GeForce RTX 5070 Ti Laptop GPU, driver 610.88, timm 1.0.28 | Default sample path, all 10 code cells | PASS — validator `SUCCEEDED`; checkpoint digest matched; train 1 epoch accuracy 1.0 / CE 0.007642; fresh reload `accuracyMatches=true`, `crossEntropyMatches=true` (|Δ| 1.4e-8); new image → `warm`; 4 exports written |
-| 2026-09-11 | `308ffcf4bc4905e6` | see PR #8 head | Local WSL harness (pre-flight, not promotion evidence) | as above | BYOD path: `USE_BYOD_DATASET=True` (27-file ZIP, wrapper folder, 3 classes, EXIF-orientation-6 JPEGs mixed with PNGs), `EPOCHS=3`, `USE_BYOD_IMAGE=True` via `BYOD_IMAGE_PATH` | PASS — expanded 192,077 bytes; validator `SUCCEEDED` with 3 classes; majority baseline 0.333 computed from the data plan; accuracy 1.0; fresh reload PASSED on 9 samples; new image → `dots` |
-| 2026-09-11 | `308ffcf4bc4905e6` | see PR #8 head | Local negative controls on `safe_extract_zip` (function source lifted verbatim from the notebook) | CPython 3.12.3 | `train/../../evil.txt`, `/tmp/evil.txt`, symlink member, `train\..\evil.txt`, 1000-byte expansion cap vs a 192 KB archive | PASS — all five rejected with the expected message; the good archive extracted 27 files |
+Pre-flight runtime: WSL2 Ubuntu 24.04.4 (kernel 6.18.33), Python 3.12.3, torch 2.9.1+cu128, torchvision 0.24.1+cu128, CUDA 12.8, NVIDIA GeForce RTX 5070 Ti Laptop GPU (driver 610.88), timm 1.0.28, Pillow 12.3.0 in-kernel. **Not a supported user runtime and not promotion evidence.**
+
+| Date (UTC) | Notebook blob / SHA-256 prefix | Executor | Path exercised | Wall | Outcome |
+|---|---|---|---|---|---|
+| 2026-09-11 | `a2025fb784c5` / `76924c5b05bbd2ec` | Local WSL harness | Default sample path, all 10 code cells, token clone | 35.3 s | PASS — validator `SUCCEEDED`; checkpoint digest matched (114,918,618 bytes); 1 epoch accuracy 1.0 / CE 0.007642; fresh reload `accuracyMatches=true`, `crossEntropyMatches=true` (|Δ| 1.4e-8); new image → `warm`; 4 exports |
+| 2026-09-11 | `a2025fb784c5` / `76924c5b05bbd2ec` | Local WSL harness | BYOD: `USE_BYOD_DATASET=True` (27-file ZIP, wrapper folder, 3 classes, EXIF-orientation-6 JPEGs mixed with PNGs), `EPOCHS=3`, `USE_BYOD_IMAGE=True` via `BYOD_IMAGE_PATH` | 54.1 s | PASS — expanded 192,077 bytes; validator `SUCCEEDED` with 3 classes; majority baseline 0.333 from the data plan; accuracy 1.0; fresh reload PASSED on 9 samples; new image → `dots` |
+| 2026-09-11 | `a2025fb784c5` / `76924c5b05bbd2ec` | Local negative controls (`safe_extract_zip` source lifted verbatim from the notebook), CPython 3.12.3 | `train/../../evil.txt`, `/tmp/evil.txt`, symlink member, `train\..\evil.txt`, 1000-byte cap vs 192 KB archive | — | PASS — all five rejected with the expected message; good archive extracted 27 files |
+| 2026-09-11 | `4875c6419407` / `01d0440018fcb778` | Local WSL harness | Default path after the effective-version restart-boundary check | 83.3 s | PASS — `pillowInKernel` 12.3.0 = pinned; reload equivalence PASSED |
+| 2026-09-11 | `604df01ec060` / `bd64d9e86244249d` | Local WSL harness, **no `GITHUB_TOKEN` in the environment** | Default path with worker checkouts pre-staged from all-refs git bundles (`workerSourceMode` = pre-staged) | 27.0 s | PASS — pinned revisions enforced by `checkout_pinned`; reload equivalence PASSED |
+| 2026-09-11 | `604df01ec060` / `bd64d9e86244249d` | Local WSL harness | Default path, token clone (`workerSourceMode` = cloned with ephemeral token) | 34.4 s | PASS |
+| 2026-09-11 | `14b3830967c1` / `92937036fad81557` | Local WSL harness | Default path after preprocessing is read from `model-config.json → transforms.validation` | 30.6 s | PASS — artifact normalisation equals the worker constants; reload equivalence PASSED |
+| 2026-09-11 | `4875c6419407` / `01d0440018fcb778` | Kaggle kernel `kurtvalcorza/swin-cls-tutorial-t4-verify` v2 (Python 3.12.13, Linux 6.12.90) | Section 1 only | — | Stopped as designed at the fail-closed `GITHUB_TOKEN` check (no secret attached); the message is the UX6 corrective text. Not execution evidence. |
 
 ## Current status
 
-Static CI, the archive-safety controls, and the local pre-flight are preparatory evidence. The tutorial remains **Candidate** until a clean supported-class GPU run (Colab or the Kaggle T4 executor) for the exact notebook SHA above is appended to the table and reviewed.
+Static CI, the archive-safety controls, and the local pre-flight are preparatory evidence. The tutorial remains **Candidate** until a clean supported-class GPU run (Colab or the Kaggle T4 executor) for the exact notebook blob under review is appended to the table and reviewed.
