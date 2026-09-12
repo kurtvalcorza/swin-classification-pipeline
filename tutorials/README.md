@@ -1,5 +1,14 @@
 # Tutorials
 
+[![GitHub](https://img.shields.io/badge/GitHub-181717?style=flat&logo=github&logoColor=white)](https://github.com/kurtvalcorza/swin-classification-pipeline)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/kurtvalcorza/swin-classification-pipeline/blob/main/tutorials/swin_classification_colab.ipynb)
+[![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-timm%2Fswinv2__tiny__window8__256.ms__in1k-ffcc4d?style=flat)](https://huggingface.co/timm/swinv2_tiny_window8_256.ms_in1k)
+[![Upstream](https://img.shields.io/badge/Upstream-microsoft%2FSwin--Transformer-181717?style=flat&logo=github&logoColor=white)](https://github.com/microsoft/Swin-Transformer)
+[![arXiv](https://img.shields.io/badge/arXiv-2111.09883-b31b1b.svg)](https://arxiv.org/abs/2111.09883)
+[![Model released](https://img.shields.io/badge/Model%20released-2023--03--18-6f42c1?style=flat)](https://huggingface.co/timm/swinv2_tiny_window8_256.ms_in1k/tree/650d02aabf05e8adbd060a739ab39e39f53da639)
+[![Sample fine--tune](https://img.shields.io/badge/Sample%20fine--tune-val%20acc%201.0%20%7C%20reload%20%CE%94%201.4e--8-2ea44f?style=flat)](RELEASE_VERIFICATION.md)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../LICENSE)
+
 Notebook specification: **DIMER Notebook Specification 1.0**
 
 | Notebook | Profile | Capability | Default runtime | BYOD | Artifact | Release status |
