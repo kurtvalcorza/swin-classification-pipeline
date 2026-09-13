@@ -1,0 +1,46 @@
+[project]
+name = "swin-classification-pipeline"
+version = "0.1.1"
+description = "DIMER SwinV2 image-classification pipeline: public tutorial API (image-folder validation, in-kernel fine-tuning, artifact reload)"
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
+license = { file = "LICENSE" }
+authors = [{ name = "Kurt Valcorza" }]
+# Exact runtime pins (NOTEBOOK_SPEC 1.1 ENV2/PAR2): the standalone tutorial carries this list verbatim as its
+# inline PINS. timm / safetensors / pillow are the previous notebook's own pins; torch / torchvision were
+# "runtime-provided" before and are pinned here to the fleet versions; huggingface-hub follows the fleet pin
+# (the previous notebook pinned 1.29.0 — recorded as an open question in the relay return).
+dependencies = [
+  "torch==2.14.0",
+  "torchvision==0.29.0",
+  "timm==1.0.28",
+  "huggingface-hub==0.36.2",
+  "safetensors==0.8.0",
+  "pillow==12.3.0",
+]
+[project.optional-dependencies]
+dev = ["pytest==8.4.2", "ruff==0.16.6"]
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+[tool.hatch.build.targets.wheel]
+packages = ["src/swin_classification_pipeline"]
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+src = ["src", "tests"]
+# Generated notebook (generator-owned cells) and pre-existing release/verification scripts that this pass
+# did not touch; they keep their own style (executor procedures, metadata verifiers).
+extend-exclude = [
+  "tutorials/*.ipynb",
+  "scripts/executor",
+  "scripts/verify_pipeline_metadata.py",
+  "scripts/negative_controls_metadata.py",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]

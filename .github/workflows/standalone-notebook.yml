@@ -1,0 +1,42 @@
+name: Standalone notebook static gates
+
+on:
+  push:
+    branches: [main, 'feat/**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: standalone-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install
+        # The offline suite needs only Pillow (synthetic sample + validator); torch/timm are imported lazily by
+        # the training and inference paths and are not installed here.
+        run: pip install pillow==12.3.0 pytest==8.4.2 ruff==0.16.6 && pip install -e . --no-deps
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Tests (offline; no weights, no GPU)
+        run: pytest -p no:cacheprovider
+
+      - name: Validate tutorial and model-card source
+        run: python tools/validate_release_assets.py
+
+      - name: Standalone notebook parity (NOTEBOOK_SPEC 1.1 PAR3)
+        run: python tools/build_notebook.py --check

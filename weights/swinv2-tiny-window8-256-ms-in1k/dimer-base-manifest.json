@@ -1,0 +1,20 @@
+{
+  "format": "dimer_hf_snapshot",
+  "formatVersion": 1,
+  "modelKey": "swinv2-tiny-window8-256-ms-in1k",
+  "modelId": "timm/swinv2_tiny_window8_256.ms_in1k",
+  "revision": "650d02aabf05e8adbd060a739ab39e39f53da639",
+  "files": [
+    {
+      "path": "config.json",
+      "bytes": 632,
+      "sha256": "75b22a3513f40757680f3f3b204adee1aa751f07eb630ee46200ed2c8a22c767"
+    },
+    {
+      "path": "model.safetensors",
+      "bytes": 114918618,
+      "sha256": "c47f52b4556ff4436aa9502f5efbc93aac77fdab42d9d70dd845931757ff5d65"
+    }
+  ],
+  "totalBytes": 114919250
+}
