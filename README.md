@@ -152,7 +152,7 @@ The three verification gates were executed end-to-end in an isolated Kaggle clou
 `MODEL_CARD.md` (DIMER Model Card Specification 1.0) records intended use, factors,
 metrics, mitigations, risks and prohibited uses for this pipeline, with every claim
 tied to the pinned worker revisions above. `tutorials/README.md` is the notebook
-registry (DIMER Notebook Specification 1.0).
+registry (DIMER Notebook Specification 2.0).
 
 ## Status
 

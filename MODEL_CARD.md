@@ -1,6 +1,6 @@
 ---
 license: mit
-model_card_spec: "1.0"
+model_card_spec: "1.1"
 pipeline_spec: "1.0"
 base_model:
   - timm/swinv2_tiny_window8_256.ms_in1k
@@ -18,7 +18,32 @@ capability_modes:
 task_profile: core.task.vision.image-classification
 ---
 
-# SwinV2 Image Classification Pipeline (org.valcorza.swin-classification) 0.1.0
+# SwinV2 Tiny/Small (org.valcorza.swin-classification 0.1.0) — Image Classification (Fine-Tuning & Inference)
+
+[![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-timm%2Fswinv2__tiny__window8__256.ms__in1k-ffcc4d?style=flat)](https://huggingface.co/timm/swinv2_tiny_window8_256.ms_in1k)
+[![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-timm%2Fswinv2__small__window8__256.ms__in1k-ffcc4d?style=flat)](https://huggingface.co/timm/swinv2_small_window8_256.ms_in1k)
+[![Upstream GitHub](https://img.shields.io/badge/Upstream%20GitHub-microsoft%2FSwin--Transformer-181717?style=flat&logo=github&logoColor=white)](https://github.com/microsoft/Swin-Transformer)
+[![arXiv Paper](https://img.shields.io/badge/arXiv-2111.09883-b31b1b.svg)](https://arxiv.org/abs/2111.09883)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Pipeline](https://img.shields.io/badge/Pipeline-swin--classification--pipeline-2ea44f?style=flat&logo=github)](https://github.com/kurtvalcorza/swin-classification-pipeline)
+
+> [!WARNING]
+> ⚠️ **Provided for research, training, and evaluation purposes only.** Model weights are redistributed unmodified under their upstream license, which controls your use, including any commercial use or redistribution; the accompanying code and notebooks are released under this repository's license. All of it is supplied **"as is"**, without warranty of any kind, and has not been validated for production, clinical, or safety-critical use. Running the notebooks downloads third-party weights and datasets governed by their own licenses and consumes compute on your own Colab/Kaggle account. To the maximum extent permitted by law, the maintainers of this repository and the DIMER platform accept no liability for any damages arising from their use. Hosting implies no affiliation with or endorsement by the original authors.
+
+---
+
+## Interactive Colab Tutorials
+
+This pipeline provides a ready-to-run interactive Google Colab notebook demonstrating 100% in-kernel execution (Notebook Spec 2.0) — image-folder validation, supervised SwinV2 fine-tuning, content-addressed artifact publication, fresh-boundary reload, and new-image inference:
+
+- **End-to-End Pipeline Tutorial**:  
+  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/kurtvalcorza/swin-classification-pipeline/blob/main/tutorials/swin_classification_colab.ipynb) [`swin_classification_colab.ipynb`](https://github.com/kurtvalcorza/swin-classification-pipeline/blob/main/tutorials/swin_classification_colab.ipynb)  
+  *Validate an image folder, fine-tune SwinV2 Tiny/Small from the pinned ImageNet-1k weights completely in-kernel, publish a content-addressed artifact, reload it across a fresh boundary, and classify new images.*
+
+> [!NOTE]
+> Needs an NVIDIA GPU exposed as `cuda:0` (Colab Tesla T4 or better; Kaggle T4 also works); training one epoch on the 16-image sample takes seconds on a T4-class GPU.
+
+---
 
 ###### Description
 
@@ -209,4 +234,4 @@ The developers consider the following uses unacceptable even where the pipeline 
 - Microsoft Swin Transformer: https://github.com/microsoft/Swin-Transformer
 - `timm` weights: https://huggingface.co/timm/swinv2_tiny_window8_256.ms_in1k · https://huggingface.co/timm/swinv2_small_window8_256.ms_in1k
 - Repository provenance: `provenance/open-weights.json`, `release/`, `evidence/release-verification-kaggle.json`
-- Tutorial: `tutorials/swin_classification_colab.ipynb` (DIMER Notebook Spec 1.0, `E2E`, candidate)
+- Tutorial: `tutorials/swin_classification_colab.ipynb` (DIMER Notebook Spec 2.0, `E2E`, candidate)

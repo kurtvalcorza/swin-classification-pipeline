@@ -1,13 +1,13 @@
 # Swin Classification Tutorial Release Verification
 
-DIMER Notebook Specification 1.0 requires clean-runtime execution evidence (REL1/REL5) in addition to static source conformance. This file is the durable release-gate record for `tutorials/swin_classification_colab.ipynb` (`E2E`).
+DIMER Notebook Specification 2.0 requires clean-runtime execution evidence (REL1/REL5) in addition to static source conformance. This file is the durable release-gate record for `tutorials/swin_classification_colab.ipynb` (`E2E`).
 
 ## Automatic coverage (static, every pull request)
 
 `verify-image-release.yml` runs `scripts/validate_colab_tutorial.py`, which checks:
 
 - notebook JSON parses; every Python cell compiles; no persisted outputs or execution counts; no `TODO`/`TBD`/`FIXME`;
-- declared `E2E` profile and Notebook Spec `1.0` identity in notebook metadata;
+- declared `E2E` profile and Notebook Spec `2.0` identity in notebook metadata;
 - the immutable pipeline anchor (`PIPELINE_REF`), pinned-worker checkout, anonymous public clone with a secure token fallback (ephemeral `extraHeader`, token deleted after use) and rejection of credential-in-URL, `trust_remote_code`, pickle/`torch.load`, `pretrained=True` and `extractall` patterns;
 - worker CLI usage, checkpoint acquisition with SHA-256 verification, the `cuda:0` fail-closed requirement;
 - gated-off BYOD flags, archive-safety function and its rejection messages, expanded-size cap;

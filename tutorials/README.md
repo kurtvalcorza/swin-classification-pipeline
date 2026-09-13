@@ -9,7 +9,7 @@
 [![Sample fine--tune](https://img.shields.io/badge/Sample%20fine--tune-val%20acc%201.0%20%7C%20reload%20%CE%94%201.4e--8-2ea44f?style=flat)](RELEASE_VERIFICATION.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../LICENSE)
 
-Notebook specification: **DIMER Notebook Specification 1.0**
+Notebook specification: **DIMER Notebook Specification 2.0**
 
 | Notebook | Profile | Capability | Default runtime | BYOD | Artifact | Release status |
 |---|---|---|---|---|---|---|
@@ -17,8 +17,8 @@ Notebook specification: **DIMER Notebook Specification 1.0**
 
 ## Conformance notes
 
-- The notebook exercises the pipeline release's pinned validator and finetuner worker CLIs (`swin-classification-validate`, `swin-classification-train`) rather than reimplementing validation or training. New-image inference rebuilds the model from the published artifact contract (`model-config.json` + `model.safetensors`) and imports the finetuner's own image-decoding function and normalisation constants, because the worker ships no standalone predictor CLI.
-- **Public access:** the pipeline, validator and finetuner repositories are public, so the notebook clones the exact pinned worker revisions anonymously and a fresh user needs no repository-specific authorization (this closes the public-bootstrap gate that issue #12 tracked). The `GITHUB_TOKEN` fallback is retained only for a private fork or mirror; when it is used, credentials travel through an ephemeral Git HTTP header and are not printed, placed in clone URLs, persisted in Git config, or written to any export.
+- The notebook implements standalone in-notebook dataset validation complying with the DIMER handoff contract (`logical-dataset-manifest.json`, `data-plan.json`, `semantic-dataset-schema.json`, `validated-dataset-manifest.json`) and **100% in-kernel supervised gradient fine-tuning** (`train_model`), eliminating any external validator or finetuner worker repository clones or CLI subprocess dependencies so exported notebooks remain fully functional, self-contained, and portable. New-image inference rebuilds the model from the published artifact contract (`model-config.json` + `model.safetensors`) and uses in-kernel image-decoding and normalisation constants.
+- **Public access:** the pipeline repository is public, so the notebook clones only the pipeline metadata repository anonymously and needs no external worker repositories. The `GITHUB_TOKEN` fallback is retained only for a private fork or mirror; when it is used, credentials travel through an ephemeral Git HTTP header and are not printed, placed in clone URLs, persisted in Git config, or written to any export.
 - The default dataset is deterministic synthetic tutorial data (24 PNGs, two classes). Its metrics are sanity evidence only, not ImageNet or production evidence.
 - **BYOD (DAT7–DAT14):** `USE_BYOD_DATASET` accepts one ZIP laid out as `train/<class>/`, `val/<class>/`; extraction rejects absolute paths, `..` traversal, backslash-ambiguous names, symlinks, root escapes, and archives above `MAX_EXPANDED_MIB`. `USE_BYOD_IMAGE` accepts a single new image. Both default to `False` so the sample path never opens an upload dialog. Uploaded data is only read by the local workers.
 - **Fresh-boundary verification (VER1–VER8):** the published generation is copied to a fresh directory, every manifest member digest is re-verified, the model is rebuilt from the artifact alone, and the frozen validation split is re-scored; accuracy must equal the worker's report exactly and cross-entropy must agree within `1e-4`.
@@ -30,7 +30,7 @@ Notebook specification: **DIMER Notebook Specification 1.0**
 
 ## Public-release gates
 
-1. ~~**Public worker bootstrap — issue #12.**~~ Closed: the pinned validator and finetuner repositories are public and the notebook clones them anonymously at the exact pinned revisions.
+1. ~~**Public worker bootstrap — issue #12.**~~ Closed: dataset validation and supervised fine-tuning run 100% in-kernel without cloning external worker repositories, while pipeline metadata is cloned anonymously.
 2. **Clean supported GPU execution — REL1/REL5.** Execute the exact release-candidate notebook top-to-bottom in a fresh supported Colab/Kaggle T4-class runtime and record commit/blob identity, environment, and outcome in `RELEASE_VERIFICATION.md`.
 
 Gate 2 is still required. Passing only static CI or local pre-flight does not make the notebook public-ready.
