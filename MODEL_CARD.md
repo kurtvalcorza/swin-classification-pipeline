@@ -34,11 +34,11 @@ task_profile: core.task.vision.image-classification
 
 ## Interactive Colab Tutorials
 
-This pipeline provides a ready-to-run interactive Google Colab notebook demonstrating the full composed-worker path — image-folder validation, supervised SwinV2 fine-tuning, content-addressed artifact publication, fresh-boundary reload, and new-image inference:
+This pipeline provides a ready-to-run interactive Google Colab notebook demonstrating 100% in-kernel execution (Notebook Spec 2.0) — image-folder validation, supervised SwinV2 fine-tuning, content-addressed artifact publication, fresh-boundary reload, and new-image inference:
 
 - **End-to-End Pipeline Tutorial**:  
   [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/kurtvalcorza/swin-classification-pipeline/blob/main/tutorials/swin_classification_colab.ipynb) [`swin_classification_colab.ipynb`](https://github.com/kurtvalcorza/swin-classification-pipeline/blob/main/tutorials/swin_classification_colab.ipynb)  
-  *Validate an image folder, fine-tune SwinV2 Tiny/Small from the pinned ImageNet-1k weights through the two pinned workers, publish a content-addressed artifact, reload it across a fresh boundary, and classify new images.*
+  *Validate an image folder, fine-tune SwinV2 Tiny/Small from the pinned ImageNet-1k weights completely in-kernel, publish a content-addressed artifact, reload it across a fresh boundary, and classify new images.*
 
 > [!NOTE]
 > Needs an NVIDIA GPU exposed as `cuda:0` (Colab Tesla T4 or better; Kaggle T4 also works); training one epoch on the 16-image sample takes seconds on a T4-class GPU.
@@ -234,4 +234,4 @@ The developers consider the following uses unacceptable even where the pipeline 
 - Microsoft Swin Transformer: https://github.com/microsoft/Swin-Transformer
 - `timm` weights: https://huggingface.co/timm/swinv2_tiny_window8_256.ms_in1k · https://huggingface.co/timm/swinv2_small_window8_256.ms_in1k
 - Repository provenance: `provenance/open-weights.json`, `release/`, `evidence/release-verification-kaggle.json`
-- Tutorial: `tutorials/swin_classification_colab.ipynb` (DIMER Notebook Spec 1.0, `E2E`, candidate)
+- Tutorial: `tutorials/swin_classification_colab.ipynb` (DIMER Notebook Spec 2.0, `E2E`, candidate)

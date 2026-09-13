@@ -9,7 +9,7 @@
 [![Sample fine--tune](https://img.shields.io/badge/Sample%20fine--tune-val%20acc%201.0%20%7C%20reload%20%CE%94%201.4e--8-2ea44f?style=flat)](RELEASE_VERIFICATION.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../LICENSE)
 
-Notebook specification: **DIMER Notebook Specification 1.0**
+Notebook specification: **DIMER Notebook Specification 2.0**
 
 | Notebook | Profile | Capability | Default runtime | BYOD | Artifact | Release status |
 |---|---|---|---|---|---|---|

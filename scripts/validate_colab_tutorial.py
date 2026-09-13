@@ -1,4 +1,4 @@
-"""Static checks for the Swin classification DIMER Notebook Spec 1.0 tutorial.
+"""Static checks for the Swin classification DIMER Notebook Spec 2.0 tutorial.
 
 This validates source structure only. It must never be cited as REL1/REL5 execution evidence.
 """
@@ -31,7 +31,7 @@ def main() -> int:
     # metadata key for the spec version. Preserve this repository's `notebook_spec` key
     # while accepting the `_version` spelling used by sibling repositories.
     spec_value = meta.get("notebook_spec", meta.get("notebook_spec_version"))
-    assert spec_value == "1.0", meta
+    assert spec_value == "2.0", meta
 
     code = _text(nb, "code")
     markdown = _text(nb, "markdown")
@@ -117,7 +117,7 @@ def main() -> int:
 
     required_markdown = (
         "**Profile:** `E2E`",
-        "Notebook spec:** 1.0",
+        "Notebook spec:** 2.0",
         "GITHUB_TOKEN",
         "private",
         "By the end of this notebook you will be able to",
@@ -145,7 +145,7 @@ def main() -> int:
         if cell.get("cell_type") == "code":
             assert index > 0 and cells[index - 1].get("cell_type") == "markdown", f"code cell {index} lacks a preceding explanation"
 
-    print("Static Swin classification Notebook Spec 1.0 checks pass.")
+    print("Static Swin classification Notebook Spec 2.0 checks pass.")
     print("NOTE: this is source validation only, not clean-runtime execution evidence.")
     return 0
 
