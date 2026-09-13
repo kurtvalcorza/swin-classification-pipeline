@@ -39,6 +39,13 @@ TEMPLATE = {
     "stem": "swin_classification",
     "notebook_name": "swin_classification_colab.ipynb",
     "profile": "E2E",
+    "mode": "GUIDED",
+    "run_all": (
+        "This notebook needs an NVIDIA GPU exposed as `cuda:0` (Colab: Runtime > Change runtime type > T4 GPU); the finetuner is fail-closed and stops with a clear message otherwise (RUN11). Once that runtime is selected, **Run all** installs the pinned dependencies, stages and digest-verifies the pinned SwinV2 snapshot, generates the deterministic synthetic two-class sample (24 PNGs, seeded, no download), validates the dataset into an input manifest, performs a bounded in-kernel fine-tuning run (1 epoch, batch 4, AdamW, seed 20260910) with a replaced classification head, exports the artifact and reloads it across a fresh boundary, evaluates the reloaded model on the held-out split against a majority-class baseline and writes the evaluation report, classifies a new image with the reloaded model, and exports machine-readable results and provenance. No repository clone, DIMER worker or service, credential, upload dialog or configuration edit is required (NOTEBOOK_SPEC 2.0 §5)."
+    ),
+    "byod": (
+        "Two optional branches, both off by default and never part of the default path: `USE_BYOD = True` (or `BYOD_ZIP_PATH`) in Section 4 supplies a ZIP of your own image folders (`train/<class>/…`, `val/`, optional `test/`) that enters the same validation, in-kernel fine-tuning, export, fresh-reload and evaluation cells as the synthetic sample (DAT14); `USE_BYOD_IMAGE = True` in Section 9 classifies one image of your own with the reloaded model. Expected layout, size ceiling (`MAX_EXPANDED_MIB`) and privacy guidance are stated in the Prerequisites and in those cells; uploads stay inside this runtime."
+    ),
     "pipeline_class": "SwinClassificationPipeline",
     "weights_key": "swinv2-tiny-window8-256-ms-in1k",
     "runtime_imports": ["torch", "torchvision", "timm"],

@@ -1,10 +1,13 @@
 ---
 license: mit
 model_card_spec: "1.1"
+pipeline_tag: image-classification
 pipeline_spec: "1.0"
 base_model:
   - timm/swinv2_tiny_window8_256.ms_in1k
   - timm/swinv2_small_window8_256.ms_in1k
+date_published: "2023-03-18"
+date_published_source: "Hugging Face Hub repository creation date of the exact hosted checkpoint (`createdAt`, https://huggingface.co/api/models/timm/swinv2_small_window8_256.ms_in1k) (earliest of 2 base models: timm/swinv2_small_window8_256.ms_in1k)"
 base_model_revision:
   - 650d02aabf05e8adbd060a739ab39e39f53da639
   - 0c9500fcde4c689e97ff51954debae59c158af0d
@@ -25,7 +28,6 @@ task_profile: core.task.vision.image-classification
 [![Upstream GitHub](https://img.shields.io/badge/Upstream%20GitHub-microsoft%2FSwin--Transformer-181717?style=flat&logo=github&logoColor=white)](https://github.com/microsoft/Swin-Transformer)
 [![arXiv Paper](https://img.shields.io/badge/arXiv-2111.09883-b31b1b.svg)](https://arxiv.org/abs/2111.09883)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Pipeline](https://img.shields.io/badge/Pipeline-swin--classification--pipeline-2ea44f?style=flat&logo=github)](https://github.com/kurtvalcorza/swin-classification-pipeline)
 
 > [!WARNING]
 > ⚠️ **Provided for research, training, and evaluation purposes only.** Model weights are redistributed unmodified under their upstream license, which controls your use, including any commercial use or redistribution; the accompanying code and notebooks are released under this repository's license. All of it is supplied **"as is"**, without warranty of any kind, and has not been validated for production, clinical, or safety-critical use. Running the notebooks downloads third-party weights and datasets governed by their own licenses and consumes compute on your own Colab/Kaggle account. To the maximum extent permitted by law, the maintainers of this repository and the DIMER platform accept no liability for any damages arising from their use. Hosting implies no affiliation with or endorsement by the original authors.
@@ -47,7 +49,7 @@ The notebook is now a **standalone** carrier under DIMER Notebook Specification 
 
 ---
 
-###### Description
+#### Description
 
 This pipeline packages **SwinV2 Tiny** and **SwinV2 Small** image-classification checkpoints from the Microsoft Swin Transformer V2 family — *Swin Transformer V2: Scaling Up Capacity and Resolution* (Liu et al., 2022, arXiv:2111.09883) — in the `timm` distribution `swinv2_tiny_window8_256.ms_in1k` (Hugging Face revision `650d02aabf05…`) and `swinv2_small_window8_256.ms_in1k` (revision `0c9500fcde4c…`), both pretrained on ImageNet-1k at 256×256 with an 8×8 attention window. A Swin transformer is a hierarchical vision transformer: the image is cut into 4×4 patches, self-attention is computed inside local windows that shift between layers, and patches are merged stage by stage so the network builds a multi-scale feature map ending in one feature vector per image.
 
