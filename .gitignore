@@ -1,2 +1,5 @@
 __pycache__/
 *.pyc
+# Pinned timm HF weights staged locally; config.json stays committable
+weights/**/*.safetensors
+weights/**/.cache/
