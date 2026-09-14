@@ -21,7 +21,7 @@ capability_modes:
 task_profile: core.task.vision.image-classification
 ---
 
-# SwinV2 Tiny/Small (org.valcorza.swin-classification 0.1.0) — Image Classification (Fine-Tuning & Inference)
+# SwinV2 Tiny/Small — Image Classification (Fine-Tuning & Inference)
 
 [![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-timm%2Fswinv2__tiny__window8__256.ms__in1k-ffcc4d?style=flat)](https://huggingface.co/timm/swinv2_tiny_window8_256.ms_in1k)
 [![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-timm%2Fswinv2__small__window8__256.ms__in1k-ffcc4d?style=flat)](https://huggingface.co/timm/swinv2_small_window8_256.ms_in1k)
