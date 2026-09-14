@@ -3,3 +3,13 @@ __pycache__/
 # Pinned timm HF weights staged locally; config.json stays committable
 weights/**/*.safetensors
 weights/**/.cache/
+
+# Model weights are pulled locally; only the snapshot manifest and small config files are committable
+weights/**/*.ckpt
+weights/**/*.bin
+weights/**/*.pt
+weights/**/*.pth
+weights/**/*.onnx
+.pytest_cache/
+.ruff_cache/
+outputs/
