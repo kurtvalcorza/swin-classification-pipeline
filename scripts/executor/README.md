@@ -17,3 +17,7 @@ NVIDIA Container Toolkit).
 | 4 | `verify_release.py` 32/32, `negative_controls.py` 7/7, `verify_image_release.py` 7/7, `verify_open_weight_provenance.py`, `verify_pipeline_metadata.py` + 12 negative controls, hygiene oracle 2/2 | Windows | — |
 
 Image digests are the local containerd manifest digests (`docker image inspect --format '{{.Id}}'`); they become registry digests unchanged on push.
+
+## AI Assistance Disclosure
+
+This tutorial and its accompanying documentation were developed with generative AI assistance for code development and technical writing under maintainer direction. The maintainer remains responsible for reviewing the implementation, validating results, and making release decisions. AI assistance does not constitute independent verification, provider endorsement, or release approval.
