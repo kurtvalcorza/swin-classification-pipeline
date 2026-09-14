@@ -2,6 +2,7 @@
 license: mit
 model_card_spec: "1.1"
 pipeline_tag: image-classification
+task: "Image Classification"
 pipeline_spec: "1.0"
 base_model:
   - timm/swinv2_tiny_window8_256.ms_in1k
