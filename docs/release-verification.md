@@ -108,7 +108,7 @@ runtime, not general estimates.
 
 | Date (UTC) | Commit / notebook blob | Executor | Path exercised | Wall | Outcome |
 |---|---|---|---|---|---|
-| | | | Default sample path | | pending — queued to the GPU lane |
+| 2026-09-14 | `b1382d1` / `18aad3a06bb6` | Kaggle T4 (`kurtvalcorza/dimer-nb2-swin-classification` v1) | Default sample path | 172.2 s | **PASSED** — 10/10 code cells executed cleanly, 1 weights staged |
 
 ### History: previous (non-standalone) notebook revision
 
@@ -136,8 +136,7 @@ Pre-flight runtime: WSL2 Ubuntu 24.04.4 (kernel 6.18.33), Python 3.12.3, torch 2
 
 ## Current status
 
-No clean-runtime execution of the standalone notebook has been recorded yet; the run is **pending** and queued to
-the GPU lane. Static validation (`tools/validate_release_assets.py`), the generator parity check, a `compile()` sweep
+Clean GPU execution evidence is now recorded for the standalone notebook above. Static validation (`tools/validate_release_assets.py`), the generator parity check, a `compile()` sweep
 over every code cell, and the offline unit suite passed on the tutorial source at the candidate revision, which is
 necessary but not sufficient. The registry status remains **Candidate** until a reviewer confirms a recorded run
 against the notebook blob under review and an integrator promotes it; promotion is not performed by the builder.

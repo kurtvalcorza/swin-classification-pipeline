@@ -859,10 +859,10 @@ class SwinClassificationPipeline:
 
     def classify(self, image_paths: Sequence[str | Path]):
         """(predicted indices, softmax scores, logits) on CPU for a batch of image paths."""
+        self._require_model()
         import torch
         import torch.nn.functional as functional
 
-        self._require_model()
         batch = torch.stack([self._preprocess(load_visual_image(Path(p))) for p in image_paths]).to(self.device)
         with torch.no_grad():
             logits = self._model(batch)
@@ -881,10 +881,9 @@ class SwinClassificationPipeline:
 
     def evaluate_split(self, dataset_dir: str | Path, sample_ids: Sequence[str], batch_size: int = 16) -> dict[str, Any]:
         """Score frozen validation samples with the reloaded artifact: accuracy, cross-entropy, per-sample rows."""
+        self._require_model()
         import torch
         import torch.nn.functional as functional
-
-        self._require_model()
         assert self.class_names is not None
         dataset_dir = Path(dataset_dir)
         per_sample, correct, loss_sum = [], 0, 0.0
