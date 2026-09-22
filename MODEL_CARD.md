@@ -230,7 +230,7 @@ The developers consider the following uses unacceptable even where the pipeline 
 - **No channel-count or minimum-size validation** before model execution (Pipeline Spec §21.9); images are converted to RGB and resized unconditionally.
 - **No duplicate-content detection across splits** (SPL9).
 - **`redistribution_status` not declared machine-readably** for the two base checkpoints (LIC4); the licence determination above is recorded in prose and in the finetuner catalog only.
-- **No DIMER serving integration and no clean-runtime tutorial execution recorded yet** (SRV*, REL5/REL6 for the tutorial path); see `tutorials/RELEASE_VERIFICATION.md`.
+- **No serving integration and no clean-runtime tutorial execution recorded yet** (SRV*, REL5/REL6 for the tutorial path); see `tutorials/RELEASE_VERIFICATION.md`.
 
 ## References
 
