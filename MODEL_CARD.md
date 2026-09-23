@@ -72,7 +72,7 @@ The uses envisioned during development are narrow: supervised adaptation of a ge
 
 ###### Primary Intended Users
 
-Intended users are **machine-learning engineers and data engineers operating DIMER deployments**, and analysts who can assemble a labelled image folder and read an evaluation report. The deployment setting is an internal enterprise or research platform where the operator controls the data, the GPU and the downstream use of predictions.
+Intended users are **machine-learning engineers and data engineers running the pipeline on infrastructure they control**, and analysts who can assemble a labelled image folder and read an evaluation report. The deployment setting is research or in-house enterprise use where the operator controls the data, the GPU and the downstream use of predictions.
 
 Users are assumed to understand: how a train/validation split is formed and why the pipeline refuses to invent one; that ImageNet pretraining transfers well to natural photographs and poorly to modalities it never saw (radiology, spectrograms, multispectral rasters); that accuracy on a small validation folder is a noisy estimate; that softmax scores are not calibrated probabilities; and that a GPU exposed as `cuda:0` is required. The pipeline is not built for hobbyist or public-facing self-service use: it fails closed with typed refusal codes rather than guessing, and expects the operator to read them.
 
