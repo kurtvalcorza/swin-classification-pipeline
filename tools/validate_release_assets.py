@@ -1,6 +1,6 @@
 """Static release-asset validation for the SwinV2 image-classification DIMER pipeline.
 
-Checks the STANDALONE tutorial notebook (DIMER Notebook Specification 2.0 §4, profile E2E), the tutorial
+Checks the STANDALONE tutorial notebook (DIMER Notebook Specification 2.2 §4, profile E2E), the tutorial
 registry, model card, README, STATUS.md and weight documentation for source conformance and
 cross-document identity consistency, and runs the generator parity checks (PAR1–PAR3).
 
@@ -56,7 +56,7 @@ CODE_MARKERS = (
     "validate_inputs(probe_root)",
     "except ValidationFailure as exc:",
     "dataset_origin = generate_synthetic_sample(DATASET_DIR, seed=SAMPLE_SEED)",
-    "expanded = safe_extract_zip(zip_path, extracted, MAX_EXPANDED_MIB * 1024 * 1024)",
+    "expanded = safe_extract_zip(zip_path, extracted, MAX_EXPANDED_MIB * 1024 * 1024, skipped=skipped_metadata)",
     "inventory = dataset_inventory(DATASET_DIR)",
     "handoff = validate_dataset(DATASET_DIR, HANDOFF_DIR, worker_release_digest=VALIDATOR_WORKER_RELEASE_DIGEST",
     "if validation_result.get('state') != 'SUCCEEDED':",
@@ -68,7 +68,8 @@ CODE_MARKERS = (
     "reload_check['accuracyMatches'] = reload_check['reloadedAccuracy'] == reload_check['reportedAccuracy']",
     "raise RuntimeError('The reloaded artifact does not reproduce the reported metrics. Do not ship this artifact.')",
     "baseline = majority_class_baseline(validation_labels, class_names)",
-    "report = evaluation_report(reported_metrics, baseline=baseline, n_validation=len(validation_labels), class_names=class_names, sample_kind=sample_kind, reload_check=reload_check)",
+    "report = evaluation_report(reported_metrics, baseline=baseline, n_validation=len(validation_labels), class_names=class_names, sample_kind=sample_kind, reload_check=reload_check, colour_baseline=colour_baseline)",
+    "colour_baseline = mean_colour_baseline(DATASET_DIR, data_plan['assignments'], class_names)",
     "(prediction,) = fresh.predict([new_image_path])",
     "new_image_path = synthetic_new_image(NEW_IMAGE_DIR / 'synthetic-new-warm.png')",
     "print({'ceilings': {'MIN_CLASSES': MIN_CLASSES, 'MAX_EXPANDED_BYTES': MAX_EXPANDED_BYTES, 'INPUT_SIZE': INPUT_SIZE, 'IMAGE_EXTENSIONS': sorted(IMAGE_EXTENSIONS)}, 'decision_rule': DECISION_RULE})",
@@ -81,9 +82,9 @@ CODE_MARKERS = (
 )
 # Profile-specific learner-facing statements.
 MARKDOWN_MARKERS = (
-    "**Capability:** image-folder validation → supervised SwinV2 fine-tuning in this kernel",
+    "**Capability:** image-folder validation → supervised SwinV2 fine-tuning in this notebook",
     "this is gradient adaptation, not in-context conditioning",
-    "**100 % in this kernel**",
+    "**100 % in this notebook**",
     "**no silent CPU fallback**",
     "**Reproducibility boundary:**",
     "the reported metrics come from the persisted bytes, not the in-memory model",
@@ -132,7 +133,7 @@ PROVENANCE_HEADING = "## Model details"
 # Specification 2.0; see docs/release-verification.md for the release gate.
 # ---------------------------------------------------------------------------
 
-NOTEBOOK_SPEC = "2.0"
+NOTEBOOK_SPEC = "2.2"
 ALLOWED_PROFILES = {"E2E", "ARTIFACT-INFERENCE", "TASK-INFERENCE", "MULTI-CAPABILITY", "SMOKE"}
 STATUS_TOKENS = ("Candidate", "Release-grade")
 PLACEHOLDER = re.compile(r"\b(TODO|TBD|FIXME)\b|Insert text here|Tooltip:", re.I)
@@ -169,10 +170,8 @@ REQUIRED_CARD_HEADINGS = [
 COMMON_CODE_MARKERS = (
     "PINS = [",
     "NOTEBOOK_SOURCE = {",
-    "SKIP_INSTALL = os.environ.get('DIMER_NOTEBOOK_CI_PREINSTALLED') == '1'",
-    "subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', *PINS], check=True)",
-    "importlib.metadata.packages_distributions()",
-    "importlib.invalidate_caches()",
+    "LOCK_TEXT = r'" + "''",
+    "_ip.input_transformers_cleanup.append(_route_to_isolated_runtime)",
     "platform.python_version()",
     "torch.__version__",
     "MANIFEST = {",
@@ -596,17 +595,17 @@ def _validate_parity(path: Path, notebook: dict, code_cells: list[tuple[int, str
 
 
 def _validate_bootstrap_guard(path: Path, code_cells: list[tuple[int, str, ast.Module]]) -> None:
-    """The stale-import guard must actually raise: `if stale:` whose body raises RuntimeError."""
-    raises = False
-    for _, _, tree in code_cells:
-        for node in ast.walk(tree):
-            if isinstance(node, ast.If) and isinstance(node.test, ast.Name) and node.test.id == "stale":
-                for sub in ast.walk(node):
-                    if isinstance(sub, ast.Raise) and isinstance(sub.exc, ast.Call):
-                        func = sub.exc.func
-                        if isinstance(func, ast.Name) and func.id == "RuntimeError":
-                            raises = True
-    _check(raises, f"{path.name}: install cell must raise RuntimeError when already-imported packages change")
+    """SWC-M1 (RUN1, RUN10, ENV6): nothing is pip-installed into the kernel and no cell asks for a restart. Exactly two
+    kernel cells exist: the isolated install (pinned uv by digest, managed CPython, hash lock with --require-hashes
+    --only-binary :all:) and the router that sends every later cell to the isolated worker."""
+    kernel_raw = [source for _index, source, _tree in code_cells if "# dimer: kernel cell" in source]
+    _check(len(kernel_raw) == 2, f"{path.name}: exactly two kernel cells (isolated install and router) are expected (SWC-M1)")
+    install = next((k for k in kernel_raw if "LOCK_TEXT = r" in k), "")
+    for needed in ('"--managed-python"', '"--require-hashes"', '"--only-binary"', '":all:"', "UV_SHA256", "LOCK_SHA256", 'platform.machine() != "x86_64"'):
+        _check(needed in install, f"{path.name}: the isolated install cell must use {needed} (SWC-M1)")
+    every = "\n".join(source for _index, source, _tree in code_cells)
+    _check("Restart the runtime" not in every, f"{path.name}: no cell may ask for a runtime restart (SWC-M1)")
+    _check("[sys.executable, '-m', 'pip'" not in every, f"{path.name}: nothing may be pip-installed into the kernel (SWC-M1)")
 
 
 def _validate_notebook_content(
@@ -620,10 +619,12 @@ def _validate_notebook_content(
     _check(not missing, f"{path.name}: missing required source markers: {missing}")
     present = [label for label, pattern in FORBIDDEN_PATTERNS if pattern.search(code)]
     _check(not present, f"{path.name}: forbidden/insecure source: {present}")
-    leaked = [marker for marker in FORBIDDEN_OUTSIDE_MODULE if marker in outside]
+    # The two kernel cells (isolated install and router) are generator-owned; every other cell runs in the isolated worker.
+    kernel = {index for index, source, _tree in code_cells if "# dimer: kernel cell" in source}
+    learner = "\n".join(text for index, text in stripped.items() if index not in embedded and index not in kernel)
+    leaked = [marker for marker in FORBIDDEN_OUTSIDE_MODULE if marker in learner]
     _check(not leaked, f"{path.name}: direct library use outside the carried module cell (G2): {leaked}")
-    install_index = code_cells[0][0]
-    outside_after_install = "\n".join(text for index, text in stripped.items() if index not in embedded and index != install_index)
+    outside_after_install = "\n".join(text for index, text in stripped.items() if index not in embedded and index not in kernel)
     worker = [marker for marker in FORBIDDEN_OUTSIDE_MODULE_FLEET if marker in outside_after_install]
     _check(not worker, f"{path.name}: worker/subprocess path outside the generator-owned cells: {worker}")
     _check(

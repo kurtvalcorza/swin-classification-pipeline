@@ -187,9 +187,21 @@ def stage_missing_files(
 # ---------------------------------------------------------------------------
 
 
-def safe_extract_zip(zip_path: str | Path, destination: str | Path, max_expanded_bytes: int = MAX_EXPANDED_BYTES) -> int:
+ARCHIVE_METADATA_NAMES = frozenset({".DS_Store", "Thumbs.db", "desktop.ini"})
+
+
+def is_archive_metadata(member: str) -> bool:
+    """Operating-system metadata a ZIP tool adds on its own: macOS ``__MACOSX/`` trees and ``._*`` AppleDouble files,
+    ``.DS_Store``, Windows ``Thumbs.db`` / ``desktop.ini``. These are skipped at extraction and reported, never
+    validated as images."""
+    parts = PurePosixPath(member).parts
+    return bool(parts) and ("__MACOSX" in parts or parts[-1] in ARCHIVE_METADATA_NAMES or parts[-1].startswith("._"))
+
+
+def safe_extract_zip(zip_path: str | Path, destination: str | Path, max_expanded_bytes: int = MAX_EXPANDED_BYTES, skipped: list[str] | None = None) -> int:
     """Extract an image-folder ZIP with the archive-safety rules of DIMER Notebook Spec section 19 (member by
-    member, never ``extractall``); returns the expanded byte count."""
+    member, never ``extractall``); returns the expanded byte count. Operating-system metadata members
+    (``is_archive_metadata``) are not extracted; their names are appended to ``skipped`` when a list is given."""
     destination = Path(destination)
     destination.mkdir(parents=True, exist_ok=True)
     root = destination.resolve()
@@ -204,6 +216,10 @@ def safe_extract_zip(zip_path: str | Path, destination: str | Path, max_expanded
                 raise ValueError(f"absolute or traversing archive member rejected: {name!r}")
             if (info.external_attr >> 16) & 0o170000 == 0o120000:
                 raise ValueError(f"symlink archive member rejected: {name!r}")
+            if is_archive_metadata(name):
+                if skipped is not None and not info.is_dir():
+                    skipped.append(name)
+                continue
             expanded += info.file_size
             if expanded > max_expanded_bytes:
                 raise ValueError(f"archive expands beyond {max_expanded_bytes} bytes; raise MAX_EXPANDED_MIB only if you trust the file")
@@ -230,11 +246,25 @@ def locate_dataset_root(extracted: str | Path) -> Path:
     raise ValueError("ZIP must contain train/ (and val/ or valid/) at the top level or inside one wrapper folder")
 
 
+SYNTHETIC_JITTERS = tuple(range(-15, 16))  # horizontal offsets of the drawn shape, in pixels
+
+
 def generate_synthetic_sample(dataset_dir: str | Path, seed: int = DEFAULT_SEED, per_split: Mapping[str, int] | None = None) -> dict[str, Any]:
-    """The deterministic two-class tutorial sample (``cool`` squares on blue, ``warm`` circles on red)."""
+    """The deterministic two-class tutorial sample (``cool`` squares on blue, ``warm`` circles on red).
+
+    Every image of a class has its own horizontal offset, drawn without replacement, so no image is byte-identical to
+    another and no image appears in two splits (an earlier version drew offsets with replacement and leaked training
+    images into the validation split). The two classes differ in background colour as well as shape, so a colour rule
+    alone separates them: see ``mean_colour_baseline``."""
     dataset_dir = Path(dataset_dir)
     rng = random.Random(seed)
-    for split, per_class in (per_split or {"train": 8, "val": 4}).items():
+    plan = dict(per_split or {"train": 8, "val": 4})
+    total = sum(plan.values())
+    if total > len(SYNTHETIC_JITTERS):
+        raise ValueError(f"at most {len(SYNTHETIC_JITTERS)} distinct images per class can be drawn, {total} were requested")
+    jitters = {class_name: rng.sample(SYNTHETIC_JITTERS, total) for class_name in ("cool", "warm")}
+    drawn = {"cool": 0, "warm": 0}
+    for split, per_class in plan.items():
         for class_name in ("cool", "warm"):
             out = dataset_dir / split / class_name
             out.mkdir(parents=True, exist_ok=True)
@@ -242,13 +272,14 @@ def generate_synthetic_sample(dataset_dir: str | Path, seed: int = DEFAULT_SEED,
                 background = (35, 70, 190) if class_name == "cool" else (190, 65, 35)
                 image = Image.new("RGB", (INPUT_SIZE, INPUT_SIZE), background)
                 draw = ImageDraw.Draw(image)
-                jitter = rng.randint(-15, 15)
+                jitter = jitters[class_name][drawn[class_name]]
+                drawn[class_name] += 1
                 if class_name == "cool":
                     draw.rectangle((60 + jitter, 60, 196 + jitter, 196), outline=(230, 240, 255), width=10)
                 else:
                     draw.ellipse((60 + jitter, 60, 196 + jitter, 196), outline=(255, 240, 220), width=10)
                 image.save(out / f"{class_name}-{index:02d}.png")
-    return {"type": "deterministic synthetic tutorial sample", "seed": seed, "generator": "swin_classification_pipeline.generate_synthetic_sample"}
+    return {"type": "deterministic synthetic tutorial sample", "seed": seed, "generator": "swin_classification_pipeline.generate_synthetic_sample", "distinct_images": True}
 
 
 def synthetic_new_image(path: str | Path) -> Path:
@@ -289,8 +320,11 @@ def dataset_inventory(dataset_dir: str | Path) -> dict[str, dict[str, int]]:
 
 
 class ValidationFailure(RuntimeError):
+    """A fatal validator finding; the message names the offending entries (``observed``) and what was expected."""
+
     def __init__(self, finding: dict) -> None:
-        super().__init__(finding["message"])
+        detail = f" Found: {finding.get('observed')!r}; expected: {finding.get('expected')!r}." if "observed" in finding else ""
+        super().__init__(f"{finding['message']}{detail}")
         self.finding = finding
 
 
@@ -967,6 +1001,43 @@ def majority_class_baseline(labels: Sequence[str], class_names: Sequence[str] | 
     return {"majorityClass": majority, "labelCounts": counts, "accuracy": counts[majority] / len(labels)}
 
 
+def mean_colour_baseline(dataset_dir: str | Path, assignments: Sequence[Mapping[str, Any]], class_names: Sequence[str] | None = None) -> dict[str, Any]:
+    """A non-neural baseline: each image is reduced to its mean RGB colour, one centroid per class is fitted on the
+    ``train`` split, and each ``validation`` image is given the class of the nearest centroid (Euclidean distance).
+    If this scores as well as the fine-tuned network, the evaluation cannot show what fine-tuning contributed."""
+    dataset_dir = Path(dataset_dir)
+
+    def colour(sample_id: str) -> tuple[float, float, float]:
+        image = load_visual_image(dataset_dir / sample_id)
+        pixels = list(image.resize((32, 32)).getdata())
+        return tuple(sum(p[c] for p in pixels) / len(pixels) for c in range(3))
+
+    sums: dict[str, list[float]] = {}
+    counts: dict[str, int] = {}
+    for a in assignments:
+        if a["split"] != "train":
+            continue
+        label = Path(a["sampleId"]).parts[1]
+        rgb = colour(a["sampleId"])
+        total = sums.setdefault(label, [0.0, 0.0, 0.0])
+        for c in range(3):
+            total[c] += rgb[c]
+        counts[label] = counts.get(label, 0) + 1
+    if not counts:
+        raise ValueError("mean_colour_baseline needs at least one train image")
+    centroids = {label: [v / counts[label] for v in total] for label, total in sums.items()}
+    scored = [a for a in assignments if a["split"] == "validation"]
+    if not scored:
+        raise ValueError("mean_colour_baseline needs at least one validation image")
+    correct = 0
+    for a in scored:
+        rgb = colour(a["sampleId"])
+        predicted = min(centroids, key=lambda label: sum((rgb[c] - centroids[label][c]) ** 2 for c in range(3)))
+        correct += predicted == Path(a["sampleId"]).parts[1]
+    names = list(class_names) if class_names is not None else sorted(centroids)
+    return {"id": "mean_colour_nearest_centroid", "accuracy": correct / len(scored), "n_validation": len(scored), "centroidsRGB": {n: [round(v, 1) for v in centroids[n]] for n in names if n in centroids}, "fittedOn": "train"}
+
+
 def evaluation_report(
     metrics: Mapping[str, float] | None,
     *,
@@ -976,6 +1047,7 @@ def evaluation_report(
     sample_kind: str = "synthetic",
     reload_check: Mapping[str, Any] | None = None,
     estimation: str = "single frozen validation holdout (validator-assigned); no dispersion estimate",
+    colour_baseline: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Evaluation stage: a machine-readable report even when nothing is measurable.
 
@@ -1003,5 +1075,7 @@ def evaluation_report(
         raise ValueError(f"unknown metric ids {unknown}; the finetuner reports {list(METRIC_IDS)}")
     entries = [{"id": metric_id, "value": float(metrics[metric_id]), "units": "nats" if metric_id.endswith("cross-entropy") else "unitless", "higher_is_better": not metric_id.endswith("cross-entropy"), "estimation": estimation} for metric_id in METRIC_IDS if metric_id in metrics]
     baselines = [] if baseline is None else [{"id": "majority_class", "metrics": [{"id": METRIC_IDS[0], "value": float(baseline["accuracy"]), "units": "unitless", "higher_is_better": True}], "majorityClass": baseline.get("majorityClass")}]
+    if colour_baseline is not None:
+        baselines.append({"id": colour_baseline.get("id", "mean_colour_nearest_centroid"), "metrics": [{"id": METRIC_IDS[0], "value": float(colour_baseline["accuracy"]), "units": "unitless", "higher_is_better": True}], "fittedOn": colour_baseline.get("fittedOn", "train")})
     rows = "an unstated number of" if n_validation is None else str(n_validation)
     return {**base, "metrics": entries, "baselines": baselines, "verdict": "sample-sanity", "reason": f"{rows} validation image(s) from one frozen holdout; tutorial evidence, not a benchmark", "needs": "a labelled, domain-representative test set with every class present and repeated runs for any generalisable accuracy claim; the softmax scores are uncalibrated"}
