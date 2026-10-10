@@ -38,6 +38,8 @@ src = ["src", "tests"]
 # did not touch; they keep their own style (executor procedures, metadata verifiers).
 extend-exclude = [
   "tutorials/*.ipynb",
+  # Recorded execution evidence is byte-exact output of a hosted run, not source.
+  "docs/execution-evidence",
   "scripts/executor",
   "scripts/verify_pipeline_metadata.py",
   "scripts/negative_controls_metadata.py",

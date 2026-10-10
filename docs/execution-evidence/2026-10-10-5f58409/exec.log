@@ -1,0 +1,219 @@
+[colab] Parsing notebook '/home/kurt/colab-runs/swin-classification-pipeline-5f58409-52d2b2/swin_classification_colab_5f58409_colab-cli-t4.ipynb'...
+[colab] Executing cell 1/12 - Infrastructure: install the locked runtime into an isolated environment...
+{'isolated_environment': '/content/dimer_isolated_env', 'isolated_python': '3.12.12', 'kernel_python': '3.13.15', 'locked_packages': 45, 'setup_seconds': 50}
+[colab] Executing cell 2/12 - Route the remaining cells to the isolated environment...
+Every later code cell now runs in /content/dimer_isolated_env/bin/python (pid 2733).
+[colab] Executing cell 3/12 - Infrastructure: record the pinned runtime and the notebook source...
+{'notebook_source': {'repository': 'swin-classification-pipeline', 'repository_revision': '52b357227ef8fef81c7286914ebbf248fef4e479', 'embedded_module': 'src/swin_classification_pipeline/pipeline.py', 'embedded_modules': ['src/swin_classification_pipeline/pipeline.py'], 'module_sha256': 'fc0cf7e7fb706f4a6ecf80d52ed59e339ec8c3fd5a9fc5fd71f08c532cead7e6', 'generator': 'build_notebook.py/2.1-swc', 'notebook_spec': '2.2'}, 'python': '3.12.12', 'torch': '2.14.0+cu130', 'torchvision': '0.29.0+cu130', 'timm': '1.0.28', 'cuda': True}
+[colab] Executing cell 4/12 - swin_classification-12...
+[colab] Executing cell 5/12 - Infrastructure: pin, stage and verify the model...
+{'model_id': 'timm/swinv2_tiny_window8_256.ms_in1k', 'revision': '650d02aabf05e8adbd060a739ab39e39f53da639', 'license': 'mit', 'files': 2, 'total_bytes': 114919250}
+{'weights_dir': '/content/weights/swinv2-tiny-window8-256-ms-in1k', 'fetched': ['config.json', 'model.safetensors']}
+{'verified_files': 2, 'revision': '650d02aabf05e8adbd060a739ab39e39f53da639'}
+{'device': 'cuda:0', 'source': 'local-snapshot'}
+[colab] Executing cell 6/12 - swin_classification-16...
+class                      train     val
+cool                           8       4
+warm                           8       4
+{
+  "sample_kind": "synthetic",
+  "type": "deterministic synthetic tutorial sample",
+  "seed": 20260910,
+  "generator": "swin_classification_pipeline.generate_synthetic_sample",
+  "distinct_images": true
+}
+[colab] Executing cell 7/12 - swin_classification-18...
+{'ceilings': {'MIN_CLASSES': 2, 'MAX_EXPANDED_BYTES': 2147483648, 'INPUT_SIZE': 256, 'IMAGE_EXTENSIONS': ['.bmp', '.jpeg', '.jpg', '.png', '.tif', '.tiff', '.webp']}, 'decision_rule': 'argmax'}
+{
+  "id": "deterministic synthetic tutorial sample",
+  "mode": "fit",
+  "samples": 24,
+  "split_counts": {
+    "train": 16,
+    "validation": 8
+  },
+  "classes": [
+    "cool",
+    "warm"
+  ],
+  "class_counts": {
+    "cool": {
+      "train": 8,
+      "validation": 4
+    },
+    "warm": {
+      "train": 8,
+      "validation": 4
+    }
+  },
+  "logicalDatasetDigest": "sha256:8baf526e7c2dad8c8ca5fa6f0c96291dae36f9c29f4c452c1bc9dc36d813e332",
+  "sourceArtifactDigest": "sha256:3bc7f4ab25073d65d891b74dcb459538ee4721a0a0c484a4786dfc4c77cac3e4"
+}
+findings: [
+  {
+    "input": "stray-root-file-probe",
+    "verdict": "rejected",
+    "code": "VISION_UNKNOWN_ROOT_ENTRY",
+    "message": "Dataset root contains unsupported entries. Found: ['notes.txt']; expected: ['test', 'train', 'val', 'valid'].",
+    "observed": [
+      "notes.txt"
+    ]
+  }
+]
+{
+  "state": "SUCCEEDED",
+  "logicalDatasetDigest": "sha256:8baf526e7c2dad8c8ca5fa6f0c96291dae36f9c29f4c452c1bc9dc36d813e332",
+  "labelMap": {
+    "0": "cool",
+    "1": "warm"
+  },
+  "splitCounts": {
+    "train": 16,
+    "validation": 8
+  },
+  "warnings": []
+}
+[colab] Executing cell 8/12 - swin_classification-20...
+{
+  "state": "SUCCEEDED",
+  "device": "cuda:0",
+  "splitCounts": {
+    "train": 16,
+    "validation": 8
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "trainLoss": 0.2483745296485722,
+      "validationLoss": 0.007677703339140862,
+      "validationAccuracy": 1.0
+    }
+  ],
+  "reportedMetrics": {
+    "core.metric.classification.accuracy": 1.0,
+    "org.valcorza.metric.classification.cross-entropy": 0.007677703339140862
+  },
+  "artifactGeneration": "6ae0349f47632195d153757eed6eb47d4545de3acf6b7449e8e4007be92d7442",
+  "artifactBundleDigest": "sha256:6ae0349f47632195d153757eed6eb47d4545de3acf6b7449e8e4007be92d7442",
+  "reproducibility": "REEXECUTABLE",
+  "source": "fine-tuned"
+}
+[colab] Executing cell 9/12 - swin_classification-22...
+artifact members verified: [
+  {
+    "role": "core.artifact.model.weights",
+    "file": "model.safetensors",
+    "digest": "sha256:824767ec27af720df202494bf4ea2ebd2aa687ceac72bfa97f79936ff96b5910"
+  },
+  {
+    "role": "org.valcorza.swin-classification.model-config",
+    "file": "model-config.json",
+    "digest": "sha256:52d71f97a32635cbb3676dd2787d8164fe37fe12ff5baa4d22431b8597984354"
+  },
+  {
+    "role": "org.valcorza.timm.model-manifest",
+    "file": "model_manifest.json",
+    "digest": "sha256:9c0411ec7afbd4c3bf4d27c88c29d4439c77a519bb47cfc1e4b5da6311a199f4"
+  }
+]
+{
+  "reloadedAccuracy": 1.0,
+  "reportedAccuracy": 1.0,
+  "reloadedCrossEntropy": 0.007677674293518066,
+  "reportedCrossEntropy": 0.007677703339140862,
+  "crossEntropyTolerance": 0.0001,
+  "accuracyMatches": true,
+  "crossEntropyMatches": true
+}
+Fresh-boundary verification PASSED: artifact reproduces the reported metrics on 8 validation samples.
+[colab] Executing cell 10/12 - swin_classification-24...
+{
+  "verdict": "sample-sanity",
+  "reason": "8 validation image(s) from one frozen holdout; tutorial evidence, not a benchmark",
+  "decision_rule": "argmax",
+  "n_validation": 8,
+  "metrics": [
+    {
+      "id": "core.metric.classification.accuracy",
+      "value": 1.0,
+      "units": "unitless",
+      "higher_is_better": true,
+      "estimation": "single frozen validation holdout (validator-assigned); no dispersion estimate"
+    },
+    {
+      "id": "org.valcorza.metric.classification.cross-entropy",
+      "value": 0.007677703339140862,
+      "units": "nats",
+      "higher_is_better": false,
+      "estimation": "single frozen validation holdout (validator-assigned); no dispersion estimate"
+    }
+  ],
+  "baselines": [
+    {
+      "id": "majority_class",
+      "metrics": [
+        {
+          "id": "core.metric.classification.accuracy",
+          "value": 0.5,
+          "units": "unitless",
+          "higher_is_better": true
+        }
+      ],
+      "majorityClass": "cool"
+    },
+    {
+      "id": "mean_colour_nearest_centroid",
+      "metrics": [
+        {
+          "id": "core.metric.classification.accuracy",
+          "value": 1.0,
+          "units": "unitless",
+          "higher_is_better": true
+        }
+      ],
+      "fittedOn": "train"
+    }
+  ]
+}
+{
+  "mean_colour_baseline": {
+    "id": "mean_colour_nearest_centroid",
+    "accuracy": 1.0,
+    "n_validation": 8,
+    "centroidsRGB": {
+      "cool": [
+        50.1,
+        83.2,
+        195.1
+      ],
+      "warm": [
+        193.9,
+        75.6,
+        46.2
+      ]
+    },
+    "fittedOn": "train"
+  }
+}
+NOTE: the fine-tuned model does not beat the mean-colour baseline; this holdout cannot show what fine-tuning adds over a colour rule.
+<isolated cell 2>:1012: DeprecationWarning: Image.Image.getdata is deprecated and will be removed in Pillow 14 (2027-10-15). Use get_flattened_data instead.
+  pixels = list(image.resize((32, 32)).getdata())
+[colab] Executing cell 11/12 - swin_classification-26...
+{
+  "input": "synthetic-new-warm.png",
+  "inputSha256": "sha256:ebac980502a1f40b65864b5d0ba2ed1341df4b3fb066d803ee6c6bddb38ebfb5",
+  "decisionRule": "argmax(logits)",
+  "predictedClass": "warm",
+  "uncalibratedSoftmaxScores": {
+    "cool": 0.003350888378918171,
+    "warm": 0.9966490864753723
+  },
+  "classOrder": [
+    "cool",
+    "warm"
+  ],
+  "inputOrigin": "synthetic new image drawn by the carried module (not in train/val)"
+}
+[colab] Executing cell 12/12 - swin_classification-28...
+['swin_classification_evaluation_report.json', 'swin_classification_input_manifest.json', 'swin_classification_result.json', 'swin_classification_validation_predictions.csv']
+[colab] Saving notebook with outputs to '/home/kurt/colab-runs/swin-classification-pipeline-5f58409-52d2b2/swin_classification_colab_5f58409_colab-cli-t4_output.ipynb'...

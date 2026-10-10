@@ -113,8 +113,9 @@ runtime, not general estimates.
 | Date (UTC) | Commit / notebook blob | Executor | Path exercised | Wall | Outcome |
 |---|---|---|---|---|---|
 | 2026-09-14 | `b1382d1` / `18aad3a06bb6` | Kaggle T4 (`kurtvalcorza/dimer-nb2-swin-classification` v1) | Default sample path | 172.2 s | **PASSED** — 10/10 code cells executed cleanly, 1 weights staged. Applies to blob `18aad3a06bb6` only (the in-kernel install revision); it records no metrics, library versions, device or restart status. |
+| 2026-10-10 (10:57:20 UTC start) | `5f584090e3022d5ed72d672255c24934607eb2ab` / `fdef15099d9d81cd66a06635b2259e9d436f45fb` (`NOTEBOOK_SOURCE.repository_revision` `52b357227ef8`, `module_sha256` `fc0cf7e7fb70…`, generator `build_notebook.py/2.1-swc`, `notebook_spec` 2.2) | Colab CLI 0.7.4 sequential execution (`colab exec -f`, not a browser Run all; order from `exec.log`, no execution counts), fresh Colab Tesla T4 VM (session `suite-swin-5f58409-52d2`), committed blob fetched at the commit and checked before the VM was allocated; kernel Python 3.13.15, isolated CPython 3.12.12 (45 locked packages, setup 50 s), `torch 2.14.0+cu130`, `timm 1.0.28`, `cuda:0` | Default sample path, every form field at its default (BYOD off) | 134.9 s | **PASSED** — one pass, no restart, 0 errors; 12/12 code cells in order (cell 4, the carried module, prints nothing); 2 snapshot files digest-verified at `650d02aabf05`; 8 train / 4 validation per class; `notes.txt` root-entry probe rejected; validator `SUCCEEDED`; 1 epoch: validation accuracy 1.0, cross-entropy 0.007678; artifact members verified, fresh reload accuracy 1.0 and cross-entropy within 1e-4; baselines majority 0.5, mean-colour nearest centroid 1.0; new image → `warm` (0.9966). Evidence in `docs/execution-evidence/2026-10-10-5f58409/`: executed notebook SHA-256 `12bc3b789f06d066666fd93fa3929763f9bcb515e34f86e0032c88300f19296d`, `run_summary.json` `5bce32c118157a8e43a685720f636169ae7c03723e4778dfed31ba16199ce812`, `exec.log` `8ac3e4a4b0e5f5da8c95f69bc22d476b6b0f9a63625d5c48f2f6cd0e2abf0548`. Not exercised: BYOD, the optional activity, a browser Run all |
 
-No run of the current notebook (isolated-runtime revision, 2026-10-05 review fixes) has been recorded yet.
+The current notebook (isolated-runtime revision, 2026-10-05 review fixes) is recorded in the 2026-10-10 Colab T4 row above.
 
 ### History: previous (non-standalone) notebook revision
 
@@ -148,4 +149,4 @@ necessary but not sufficient. The registry status remains **Candidate** until a 
 against the notebook blob under review and an integrator promotes it; promotion is not performed by the builder.
 Facts a reviewer should weigh: the only hosted run (Kaggle T4, 2026-09-14) executed an earlier blob that installed
 the pins into the kernel, and recorded no metrics, versions or restart status; the current notebook installs the pins
-into an isolated `uv` environment and has not yet been run on a hosted runtime.
+into an isolated `uv` environment, and its blob `fdef15099d9d` (commit `5f58409`) completed one pass with no restart and 0 errors on a fresh Colab Tesla T4 on 2026-10-10 (Colab CLI 0.7.4 sequential execution, 12/12 code cells, 134.9 s; validation accuracy 1.0 and cross-entropy 0.0077 after one epoch, majority baseline 0.5, mean-colour baseline 1.0, fresh reload matches).
