@@ -3,7 +3,7 @@
 `tutorials/swin_classification_colab.ipynb` (`E2E`) is a **release candidate** until the exact notebook revision has
 executed top-to-bottom in a clean supported GPU runtime. Unit tests, JSON validation, code-cell compilation, and
 `tools/validate_release_assets.py` are necessary checks but are **not** runtime evidence under DIMER Notebook
-Specification 1.1. This file is the durable release-gate record for the notebook; it supersedes
+Specification 2.2. This file is the durable release-gate record for the notebook; it supersedes
 `tutorials/RELEASE_VERIFICATION.md`, whose rows for the previous (non-standalone) notebook revision are kept below as
 history.
 
@@ -15,13 +15,15 @@ CI (`.github/workflows/standalone-notebook.yml`; `verify-image-release.yml` runs
 - notebook JSON parses; every code cell compiles as plain Python (no `%`/`!` magics); no persisted outputs or
   execution counts; no unresolved placeholder markers; every code cell is preceded by an explanatory markdown cell;
 - exactly one tutorial notebook, named in `tutorials/README.md` with its `E2E` profile, the notebook-spec version and
-  the standalone carrier; `metadata.dimer` declares that profile, spec `1.1`, `standalone: true` and `generated_from`
+  the standalone carrier; `metadata.dimer` declares that profile, spec `2.2`, `standalone: true` and `generated_from`
   (repository, module commit, module SHA-256, generator);
 - the standalone carrier (ST1–ST6, PAR1–PAR3): no clone, repository install, repository import, worker CLI or
   subprocess on the primary path; exactly one cell tagged `embedded_module` equal to
   `src/swin_classification_pipeline/pipeline.py` after the generator's documented rewrites; the inline `MANIFEST` equal
   to the committed snapshot manifest and the inline `PINS` equal to the `pyproject.toml` runtime pins; the notebook
-  byte-identical to `tools/build_notebook.py` output; the pinned-install cell with its restart-on-stale-import guard;
+  byte-identical to `tools/build_notebook.py` output; exactly two kernel cells — the isolated install (pinned `uv` by size and
+  SHA-256, managed CPython, the hash lock with `--require-hashes --only-binary :all:`) and the router — no `pip install` into the
+  kernel and no restart instruction anywhere;
   `NOTEBOOK_SOURCE` recorded in exports;
 - `MODEL_ID`/`MODEL_REVISION` are bound only in the carried module cell (and repeated in the inline manifest, which the
   notebook asserts against the module before fetching), the revision is a 40-hex immutable commit, and the same
@@ -31,9 +33,9 @@ CI (`.github/workflows/standalone-notebook.yml`; `verify-image-release.yml` runs
   `SwinClassificationPipeline.from_pretrained(weights_dir=...)`, `generate_synthetic_sample` / `safe_extract_zip`,
   `dataset_inventory`, `validate_inputs` with a rejected probe, `validate_dataset`, `pipe.fit(...)` with the
   fail-closed CUDA check, `from_artifact`, `verify_artifact_generation`, `evaluate_split`, the reload equivalence
-  checks, `majority_class_baseline`, `evaluation_report`, `predict`), the ceiling print (`MIN_CLASSES`,
+  checks, `majority_class_baseline`, `mean_colour_baseline`, `evaluation_report`, `predict`), the ceiling print (`MIN_CLASSES`,
   `MAX_EXPANDED_BYTES`, `INPUT_SIZE`, `IMAGE_EXTENSIONS`), the four exports, the learner-facing statements
-  (gradient adaptation, 100 % in-kernel, no silent CPU fallback, reproducibility boundary, persisted-bytes metrics,
+  (gradient adaptation, 100 % in this notebook, no silent CPU fallback, reproducibility boundary, persisted-bytes metrics,
   uncalibrated scores, no threshold, single holdout, `sample-sanity` / `not-measurable`) and the gated-off BYOD
   defaults (`USE_BYOD`, `USE_BYOD_IMAGE`); forbidden patterns (credential-in-URL, any `git clone` / `github.com` /
   repository import on the primary path, a mutable `revision='main'`, direct `timm.create_model` / `from timm import` /
@@ -67,10 +69,10 @@ Before changing the registry status from `Candidate` to `Release-grade`:
    repository checkout** and a clean model cache;
 3. run the notebook top-to-bottom without editing implementation cells (form parameters at their defaults for the
    sample path: `USE_BYOD = False`, `USE_BYOD_IMAGE = False`, `EPOCHS = 1`, `SEED = 20260910`);
-4. verify that Section 1 reports `NOTEBOOK_SOURCE.repository_revision` equal to the module commit recorded in
-   `metadata.dimer.generated_from` and that the installed core package versions equal the inline `PINS`
-   (= `pyproject.toml`; note the pinned `torch==2.14.0` / `torchvision==0.29.0` replace the Colab-provided wheels and
-   the install guard may require one runtime restart);
+4. verify that Section 1 builds the isolated environment and routes the later cells to it with **no runtime restart**
+   (record `restarted: false`; any restart fails the gate), that it reports `NOTEBOOK_SOURCE.repository_revision` equal
+   to the module commit recorded in `metadata.dimer.generated_from` (and that `git show <revision>:src/swin_classification_pipeline/pipeline.py`
+   hashes to `module_sha256`), and that the imported core package versions equal the inline `PINS` (= `pyproject.toml`);
 5. verify every default-path stage completes:
    - the carried module cell executes (defines the pipeline class and helpers) with no import of the repository package;
    - the inline `MANIFEST` is asserted against the module identity and written to
@@ -78,20 +80,22 @@ Before changing the registry status from `Candidate` to `Release-grade`:
      manifest entries (`config.json`, `model.safetensors`) on a clean runtime, `verify_snapshot` returns the manifest
      dict, and `from_pretrained(weights_dir=WEIGHTS_DIR)` reports `source == 'local-snapshot'` on `cuda:0`;
    - the synthetic 24-image two-class sample is generated in code and the inventory printed;
-   - `validate_inputs` writes `outputs/swin_classification_input_manifest.json` (verdict `accepted`; the
-     `VISION_DUPLICATE_CONTENT_ACROSS_SPLITS` warning may appear as a non-fatal finding; one recorded rejection from
-     the stray-root-file probe) and `validate_dataset` reports `state == 'SUCCEEDED'` with `labelMap` `cool`/`warm`;
+   - `validate_inputs` writes `outputs/swin_classification_input_manifest.json` (verdict `accepted`; **no**
+     `VISION_DUPLICATE_CONTENT_ACROSS_SPLITS` warning — the sample draws distinct images per split and the cell stops if
+     one appears; one recorded rejection from the stray-root-file probe, naming `notes.txt`) and `validate_dataset` reports `state == 'SUCCEEDED'` with `labelMap` `cool`/`warm`;
    - `pipe.fit` runs on `cuda:0`, publishes one generation with four members and reports accuracy / cross-entropy from
      the reloaded artifact;
    - the fresh-boundary reload prints `accuracyMatches: true` and `crossEntropyMatches: true`;
    - `evaluation_report` writes `outputs/swin_classification_evaluation_report.json` with verdict `sample-sanity`
-     and the majority baseline `0.5`;
+     and two baselines: majority `0.5` and mean colour `1.0` (the default sample is separable by colour alone, so the
+     default evaluation cannot show what fine-tuning adds);
    - the synthetic new image is classified (`predictedClass` printed with scores summing to 1);
    - `outputs/swin_classification_result.json` and `outputs/swin_classification_validation_predictions.csv` written
      with `NOTEBOOK_SOURCE`, model revision, model licence, runtime versions and device;
 6. verify the exports exist and the interpretation section matches the observed path;
 7. record the notebook Git blob id, commit, runtime (platform, Python, PyTorch, torchvision, timm, CUDA, GPU), model
-   identifier and immutable revision, whether the model cache was clean, outcome, produced outputs, and any warning
+   identifier and immutable revision, whether the model cache was clean, `restarted: true/false`, the reported
+   metrics and both baselines, the reload check, outcome, produced outputs, and any warning
    or applicable `SHOULD` deviation in the table below;
 8. record no access tokens or other secrets.
 
@@ -108,7 +112,10 @@ runtime, not general estimates.
 
 | Date (UTC) | Commit / notebook blob | Executor | Path exercised | Wall | Outcome |
 |---|---|---|---|---|---|
-| 2026-09-14 | `b1382d1` / `18aad3a06bb6` | Kaggle T4 (`kurtvalcorza/dimer-nb2-swin-classification` v1) | Default sample path | 172.2 s | **PASSED** — 10/10 code cells executed cleanly, 1 weights staged |
+| 2026-09-14 | `b1382d1` / `18aad3a06bb6` | Kaggle T4 (`kurtvalcorza/dimer-nb2-swin-classification` v1) | Default sample path | 172.2 s | **PASSED** — 10/10 code cells executed cleanly, 1 weights staged. Applies to blob `18aad3a06bb6` only (the in-kernel install revision); it records no metrics, library versions, device or restart status. |
+| 2026-10-10 (10:57:20 UTC start) | `5f584090e3022d5ed72d672255c24934607eb2ab` / `fdef15099d9d81cd66a06635b2259e9d436f45fb` (`NOTEBOOK_SOURCE.repository_revision` `52b357227ef8`, `module_sha256` `fc0cf7e7fb70…`, generator `build_notebook.py/2.1-swc`, `notebook_spec` 2.2) | Colab CLI 0.7.4 sequential execution (`colab exec -f`, not a browser Run all; order from `exec.log`, no execution counts), fresh Colab Tesla T4 VM (session `suite-swin-5f58409-52d2`), committed blob fetched at the commit and checked before the VM was allocated; kernel Python 3.13.15, isolated CPython 3.12.12 (45 locked packages, setup 50 s), `torch 2.14.0+cu130`, `timm 1.0.28`, `cuda:0` | Default sample path, every form field at its default (BYOD off) | 134.9 s | **PASSED** — one pass, no restart, 0 errors; 12/12 code cells in order (cell 4, the carried module, prints nothing); 2 snapshot files digest-verified at `650d02aabf05`; 8 train / 4 validation per class; `notes.txt` root-entry probe rejected; validator `SUCCEEDED`; 1 epoch: validation accuracy 1.0, cross-entropy 0.007678; artifact members verified, fresh reload accuracy 1.0 and cross-entropy within 1e-4; baselines majority 0.5, mean-colour nearest centroid 1.0; new image → `warm` (0.9966). Evidence in `docs/execution-evidence/2026-10-10-5f58409/`: executed notebook SHA-256 `12bc3b789f06d066666fd93fa3929763f9bcb515e34f86e0032c88300f19296d`, `run_summary.json` `5bce32c118157a8e43a685720f636169ae7c03723e4778dfed31ba16199ce812`, `exec.log` `8ac3e4a4b0e5f5da8c95f69bc22d476b6b0f9a63625d5c48f2f6cd0e2abf0548`. Not exercised: BYOD, the optional activity, a browser Run all |
+
+The current notebook (isolated-runtime revision, 2026-10-05 review fixes) is recorded in the 2026-10-10 Colab T4 row above.
 
 ### History: previous (non-standalone) notebook revision
 
@@ -136,13 +143,10 @@ Pre-flight runtime: WSL2 Ubuntu 24.04.4 (kernel 6.18.33), Python 3.12.3, torch 2
 
 ## Current status
 
-Clean GPU execution evidence is now recorded for the standalone notebook above. Static validation (`tools/validate_release_assets.py`), the generator parity check, a `compile()` sweep
+Static validation (`tools/validate_release_assets.py`), the generator parity check, a `compile()` sweep
 over every code cell, and the offline unit suite passed on the tutorial source at the candidate revision, which is
 necessary but not sufficient. The registry status remains **Candidate** until a reviewer confirms a recorded run
 against the notebook blob under review and an integrator promotes it; promotion is not performed by the builder.
-Facts a reviewer should weigh: the pinned `torch==2.14.0` / `torchvision==0.29.0` wheels have never been installed on
-a Colab/Kaggle T4 by this notebook (the previous revision used the runtime-provided torch); the extracted module's
-training path (`train_model`) was executed only inside the previous notebook revision's local pre-flight runs, never
-as a package; the standalone carrier — executing the carried module cell in a runtime with no repository checkout —
-has been validated statically and by a CPU carrier probe (module cells + identity assertion, no fetch), never run
-end to end; and `stage_missing_files` with a real Hub download has not been executed for this manifest.
+Facts a reviewer should weigh: the only hosted run (Kaggle T4, 2026-09-14) executed an earlier blob that installed
+the pins into the kernel, and recorded no metrics, versions or restart status; the current notebook installs the pins
+into an isolated `uv` environment, and its blob `fdef15099d9d` (commit `5f58409`) completed one pass with no restart and 0 errors on a fresh Colab Tesla T4 on 2026-10-10 (Colab CLI 0.7.4 sequential execution, 12/12 code cells, 134.9 s; validation accuracy 1.0 and cross-entropy 0.0077 after one epoch, majority baseline 0.5, mean-colour baseline 1.0, fresh reload matches).
