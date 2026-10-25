@@ -150,5 +150,5 @@ over every code cell, and the offline unit suite passed on the tutorial source a
 necessary but not sufficient. The registry status remains **Candidate** until a reviewer confirms a recorded run
 against the notebook blob under review and an integrator promotes it; promotion is not performed by the builder.
 Facts a reviewer should weigh: the first hosted run (Kaggle T4, 2026-09-14) executed an earlier blob that installed
-the pins into the kernel, and recorded no metrics, versions or restart status; the current notebook installs the pins
-into an isolated `uv` environment, and its blob `fdef15099d9d` (commit `5f58409`) completed one pass with no restart and 0 errors on a fresh Colab Tesla T4 on 2026-10-10 (Colab CLI 0.7.4 sequential execution, 12/12 code cells, 134.9 s; validation accuracy 1.0 and cross-entropy 0.0077 after one epoch, majority baseline 0.5, mean-colour baseline 1.0, fresh reload matches).
+the pins into the kernel, and recorded no metrics, versions or restart status; the notebook installs the pins
+into an isolated `uv` environment, and its previous blob `fdef15099d9d` (commit `5f58409`) completed one pass with no restart and 0 errors on a fresh Colab Tesla T4 on 2026-10-10 (Colab CLI 0.7.4 sequential execution, 12/12 code cells, 134.9 s; validation accuracy 1.0 and cross-entropy 0.0077 after one epoch, majority baseline 0.5, mean-colour baseline 1.0, fresh reload matches).
