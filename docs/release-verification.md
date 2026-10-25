@@ -143,10 +143,12 @@ Pre-flight runtime: WSL2 Ubuntu 24.04.4 (kernel 6.18.33), Python 3.12.3, torch 2
 
 ## Current status
 
+**Pending (tier C review fixes, 2026-10-25):** `tutorials/swin_classification_colab.ipynb` blob `e868a656f74f9ca67e28e64b621fbefa0ad93309`, generated at `b742539` (T85-1..T85-4). It changes markdown, the use notice, `metadata.dimer` and the `NOTEBOOK_SOURCE` record only. Status **Candidate**; its hosted Colab T4 run is pending, and the runs below describe earlier blobs (REL14).
+
 Static validation (`tools/validate_release_assets.py`), the generator parity check, a `compile()` sweep
 over every code cell, and the offline unit suite passed on the tutorial source at the candidate revision, which is
 necessary but not sufficient. The registry status remains **Candidate** until a reviewer confirms a recorded run
 against the notebook blob under review and an integrator promotes it; promotion is not performed by the builder.
-Facts a reviewer should weigh: the only hosted run (Kaggle T4, 2026-09-14) executed an earlier blob that installed
+Facts a reviewer should weigh: the first hosted run (Kaggle T4, 2026-09-14) executed an earlier blob that installed
 the pins into the kernel, and recorded no metrics, versions or restart status; the current notebook installs the pins
 into an isolated `uv` environment, and its blob `fdef15099d9d` (commit `5f58409`) completed one pass with no restart and 0 errors on a fresh Colab Tesla T4 on 2026-10-10 (Colab CLI 0.7.4 sequential execution, 12/12 code cells, 134.9 s; validation accuracy 1.0 and cross-entropy 0.0077 after one epoch, majority baseline 0.5, mean-colour baseline 1.0, fresh reload matches).
