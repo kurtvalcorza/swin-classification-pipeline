@@ -200,6 +200,8 @@ notebook revision was labelled "Notebook Spec 2.0" and its records are kept as h
 
 **Candidate — tutorial source complete; one-pass Colab T4 run of the current blob recorded, awaiting reviewer/integrator promotion** (`STATUS.md`). The current blob `fdef15099d9d` (commit `5f58409`) completed one pass with no restart and 0 errors on a fresh Colab Tesla T4 on 2026-10-10 (Colab CLI 0.7.4 sequential execution, 12/12 code cells, 134.9 s; validation accuracy 1.0 and cross-entropy 0.0077 after one epoch, majority baseline 0.5, mean-colour baseline 1.0, fresh reload matches). The standalone `E2E` tutorial `tutorials/swin_classification_colab.ipynb` passes static validation and the generator parity checks; the clean-runtime run of the exact candidate revision is recorded — and gates promotion — in `docs/release-verification.md`.
 
+The current blob `b1e3e4fb` (code commit `5a7a40a`) shows a refused BYOD input as one `Refused: <file>: <reason>` line with no traceback, removes the earlier run's results and `outputs/` files and stops Run all at that cell, while genuine failures keep their traceback (NOTEBOOK_SPEC DAT19/DAT20); its hosted Colab T4 runs (the default path and a scripted refusal, `USE_BYOD=True;BYOD_ZIP_PATH='/etc/hostname'`) are pending, and the hosted runs of earlier blobs, including `e868a656f74f`, are history for it (REL14).
+
 **Lifecycle:** `candidate` — implementation topology `COMPOSED-WORKERS`, capability mode
 `GRADIENT-ADAPTATION` (DIMER Pipeline Specification 1.0 §3), declared machine-readably in
 [`pipeline-metadata.json`](pipeline-metadata.json) together with the per-checkpoint weight
