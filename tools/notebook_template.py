@@ -55,7 +55,7 @@ TEMPLATE = {
     },
     "lock": "tutorials/requirements-colab.lock.txt",
     "run_all": (
-        "This notebook needs an NVIDIA GPU exposed as `cuda:0` (Colab: Runtime > Change runtime type > T4 GPU); the finetuner is fail-closed and stops with a clear message otherwise (RUN11). Once that runtime is selected, **Run all** builds an isolated Python environment from the hash-locked pins (the kernel's own packages are left alone, so no restart is needed; a second Run all reuses it), stages and digest-verifies the pinned SwinV2 snapshot, generates the deterministic synthetic two-class sample (24 PNGs, seeded, no download), validates the dataset into an input manifest, performs a bounded fine-tuning run in the notebook (1 epoch, batch 4, AdamW, seed 20260910) with a replaced classification head, exports the artifact and reloads it across a fresh boundary, evaluates the reloaded model on the held-out split against a majority-class and a mean-colour baseline and writes the evaluation report, classifies a new image with the reloaded model, and exports machine-readable results and provenance. No repository clone, DIMER worker or service, credential, upload dialog, configuration edit or runtime restart is required (NOTEBOOK_SPEC 2.2 §5). No hosted run of this revision has been recorded yet; the hosted check is described in `docs/release-verification.md`."
+        "This notebook needs an NVIDIA GPU exposed as `cuda:0` (Colab: Runtime > Change runtime type > T4 GPU); the finetuner is fail-closed and stops with a clear message otherwise (RUN11). Once that runtime is selected, **Run all** builds an isolated Python environment from the hash-locked pins (the kernel's own packages are left alone, so no restart is needed; a second Run all reuses it), stages and digest-verifies the pinned SwinV2 snapshot, generates the deterministic synthetic two-class sample (24 PNGs, seeded, no download), validates the dataset into an input manifest, performs a bounded fine-tuning run in the notebook (1 epoch, batch 4, AdamW, seed 20260910) with a replaced classification head, exports the artifact and reloads it across a fresh boundary, evaluates the reloaded model on the held-out split against a majority-class and a mean-colour baseline and writes the evaluation report, classifies a new image with the reloaded model, and exports machine-readable results and provenance. No repository clone, DIMER worker or service, credential, upload dialog, configuration edit or runtime restart is required (NOTEBOOK_SPEC 2.5 §5). Hosted runs are recorded per notebook blob in `docs/release-verification.md`; the previous blob `fdef1509` ran there in one pass on a Colab T4 on 2026-10-10; look there for the runs of this revision."
     ),
     "byod": (
         "Two optional branches, both off by default and never part of the default path: `USE_BYOD = True` (or `BYOD_ZIP_PATH`) in Section 4 supplies a ZIP of your own image folders (`train/<class>/…`, `val/`, optional `test/`) that enters the same validation, fine-tuning, export, fresh-reload and evaluation cells as the synthetic sample (DAT14); `USE_BYOD_IMAGE = True` in Section 9 classifies one image of your own with the reloaded model. Expected layout, size ceiling (`MAX_EXPANDED_MIB`) and privacy guidance are stated in the Prerequisites and in those cells; uploads stay inside this runtime."
@@ -120,9 +120,8 @@ TEMPLATE = {
             "packaging.\n\n"
             "**Predict, then check.** Before each principal result a **Predict before running** prompt asks you to commit to an "
             "expectation; after it, **What to notice** describes normal output and a collapsed **Check your reasoning** block gives a "
-            "worked answer. Write your own answer first, then open it. No hosted run of this revision has been recorded yet, so the "
-            "answers describe the shape of a normal result; the one number they quote — the mean-colour baseline — was computed offline "
-            "on the default sample, which needs no model."
+            "worked answer. Write your own answer first, then open it. Where an answer quotes a number, it comes from "
+            "the hosted Colab T4 run of the previous blob (`fdef1509`, commit `5f58409`, 2026-10-10; not re-run here), or, for the mean-colour baseline, from the default sample, which needs no model (the hosted run printed the same 1.0)."
         ),
         (
             "## The task: Input → Model/System → Output\n\n"
@@ -178,6 +177,10 @@ TEMPLATE = {
         "- **Runtime:** a fresh **Linux x86_64** runtime with an NVIDIA GPU exposed as `cuda:0` (Colab **T4** or better; Kaggle T4 also works). The kernel's own Python version does not matter: Section 1 builds a separate environment with CPython 3.12.12 from the hash-locked pins and every later cell runs there; the finetuner is **fail-closed**: it refuses to run without the expected accelerator instead of silently falling back to CPU. The CUDA build of `torch==2.14.0` is the largest download of the run (several GB of disk; not measured for this notebook).",
         "- **Knowledge:** basic Python, the `train/<class>/` image-folder convention, and what accuracy / cross-entropy mean.",
         "- **Data:** the default path generates a deterministic synthetic two-class sample (24 PNGs) in code and needs no download and no private data; a gated BYOD path accepts a ZIP of your own image folder (`train/<class>/*.png|jpg|…`, `val/` or `valid/`, optional `test/`). Do not upload confidential or restricted data to a hosted notebook environment unless you are authorized to do so. Uploaded inputs remain in the notebook runtime; this pipeline does not send them to a third-party inference API.",
+        "- **Overlap with the training data:** the backbone `timm/swinv2_tiny_window8_256.ms_in1k` was trained on ImageNet-1k (model card "
+        "[1], [2]). The default sample is drawn in code when the notebook runs, so it cannot overlap ImageNet-1k; this is verified by "
+        "construction. A BYOD folder of natural photographs may contain ImageNet-1k images or near-duplicates, which would make your "
+        "held-out accuracy optimistic; the notebook does not check for that.",
         "- **Credentials:** none. The pinned backbone is public.",
     ],
     "cells": [
@@ -342,11 +345,10 @@ TEMPLATE = {
                 "`notes.txt`; the default sample has no warnings. **(Section 6):** `device` is `cuda:0`, one history row per epoch, and "
                 "`reportedMetrics` with accuracy and cross-entropy.\n\n"
                 "<details><summary>Check your reasoning</summary>The root may hold only split directories, so `notes.txt` breaks the layout "
-                "rule; the message now ends with `Found: ['notes.txt']`, the entry to remove. For Section 6 there is no recorded hosted "
-                "number for this revision, but the shape is predictable: the classes are separable by colour alone, so a pretrained "
-                "backbone with a fresh head usually reaches accuracy at or near 1.0 within one epoch, while cross-entropy stays clearly "
-                "above zero because one short epoch does not make the head confident. Cross-entropy is the number that still moves with "
-                "more training.</details>\n\n"
+                "rule; the message now ends with `Found: ['notes.txt']`, the entry to remove. For Section 6, in the hosted Colab T4 run of the previous blob (`fdef1509`, commit `5f58409`, 2026-10-10; not re-run here) "
+                "one epoch reached validation accuracy 1.0 and cross-entropy 0.0077 nats: close to zero already. The classes are separable "
+                "by colour alone, so a pretrained backbone with a fresh head becomes both right and confident within one short epoch. "
+                "Your numbers may differ in the decimals; cross-entropy is the one that can still move with more training.</details>\n\n"
                 "## 7. Fresh-boundary verification of the exported artifact · [Engineering]\n\n"
                 "A working in-memory model proves nothing about the bytes on disk. This section reproduces what a "
                 "downstream consumer would do with the artifact and nothing else: copy the published generation to a "
@@ -522,7 +524,7 @@ TEMPLATE = {
         "4. **Observe:** the history now has three rows; compare `reportedMetrics` with your first run.\n"
         "5. **Explain:** in one sentence, why can cross-entropy change when accuracy cannot?\n\n"
         "<details><summary>Check your reasoning</summary>Accuracy is already at or near its ceiling on this sample, so three epochs "
-        "can hardly move it; cross-entropy keeps falling as the head becomes more confident in answers that were already right. "
+        "can hardly move it; cross-entropy can still fall a little (it was already 0.0077 after one epoch in the hosted run of `fdef1509`) as the head becomes more confident in answers that were already right. "
         "Accuracy only counts which class wins; cross-entropy also measures by how much. Because the mean-colour rule already scores "
         "1.0, neither number tells you what the network learned beyond colour — that needs data where colour is not enough.</details>\n\n"
         "## Interpretation and limits\n\n"
@@ -553,6 +555,7 @@ TEMPLATE = {
         "|---|---|---|\n"
         "| Section 1 stops with `This notebook needs a Linux x86_64 runtime` | a local Windows or macOS kernel, or an ARM machine | Use Google Colab or Kaggle; the lock holds manylinux x86_64 wheels. |\n"
         "| Section 1 fails while downloading, or `The pinned uv wheel failed its size/SHA-256 check` | a network failure, or an altered download | Run the Section 1 install cell again; a repeated mismatch means the download is being altered — never edit the digest. |\n"
+        "| You want the isolated environment somewhere other than `dimer_isolated_env/` | Section 1 builds it in the working directory by default | Set the environment variable `DIMER_ISOLATED_ENV` to a path before running Section 1. |\n"
         "| `holds Python …, not 3.12.12` in Section 1 | an older `dimer_isolated_env/` folder from another notebook version | Delete that folder (or start a fresh runtime) and run the install cell again. |\n"
         "| `The isolated environment's Python process exited` | the worker ran out of memory, usually during training | Lower `BATCH_SIZE` in Section 6, then choose *Runtime → Run all* again. |\n"
         "| `ACCELERATOR_UNAVAILABLE: No CUDA accelerator observed` in Section 6 | no GPU is attached | Choose *Runtime → Change runtime type → T4 GPU*, then *Runtime → Run all*. |\n"
@@ -571,12 +574,10 @@ TEMPLATE = {
         "4. The new image was classified as ___ with a score of ___, which means ___ (and does not mean ___).\n"
         "5. What I would need before trusting this classifier on my own images: ___.\n\n"
         "## References\n\n"
-        f"- Repository README: https://github.com/kurtvalcorza/{REPO}/blob/main/README.md\n"
-        f"- Repository model card: https://github.com/kurtvalcorza/{REPO}/blob/main/MODEL_CARD.md\n"
-        f"- Weight provenance: https://github.com/kurtvalcorza/{REPO}/blob/main/docs/WEIGHTS.md\n"
-        "- Upstream model: https://huggingface.co/{MODEL_ID}\n"
-        "- Upstream code: https://github.com/microsoft/Swin-Transformer\n"
-        "- timm: https://github.com/huggingface/pytorch-image-models\n"
-        "- Swin Transformer V2: https://arxiv.org/abs/2111.09883"
+        "[1] Z. Liu *et al.*, \"Swin Transformer V2: Scaling up capacity and resolution,\" in *Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit. (CVPR)*, 2022. [Online]. Available: https://arxiv.org/abs/2111.09883\n\n"
+        "[2] Upstream model checkpoint (ImageNet-1k weights). [Online]. Available: https://huggingface.co/{MODEL_ID}\n\n"
+        "[3] R. Wightman, \"PyTorch image models (timm),\" GitHub repository. [Online]. Available: https://github.com/huggingface/pytorch-image-models\n\n"
+        "[4] Microsoft, \"Swin-Transformer,\" GitHub repository. [Online]. Available: https://github.com/microsoft/Swin-Transformer\n\n"
+        f"[5] K. Valcorza, \"{REPO},\" README and weight provenance. [Online]. Available: https://github.com/kurtvalcorza/{REPO}/blob/main/README.md, https://github.com/kurtvalcorza/{REPO}/blob/main/docs/WEIGHTS.md; model card: https://github.com/kurtvalcorza/{REPO}/blob/main/MODEL_CARD.md"
     ),
 }
