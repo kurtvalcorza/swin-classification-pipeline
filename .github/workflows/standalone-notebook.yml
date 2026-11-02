@@ -27,7 +27,7 @@ jobs:
       - name: Install
         # The offline suite needs only Pillow (synthetic sample + validator); torch/timm are imported lazily by
         # the training and inference paths and are not installed here.
-        run: pip install pillow==12.3.0 pytest==8.4.2 ruff==0.16.6 && pip install -e . --no-deps
+        run: pip install pillow==13.0.0 pytest==8.4.2 ruff==0.16.6 && pip install -e . --no-deps
 
       - name: Lint
         run: ruff check .
