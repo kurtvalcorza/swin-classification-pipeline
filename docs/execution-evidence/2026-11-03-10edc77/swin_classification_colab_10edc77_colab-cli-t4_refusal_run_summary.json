@@ -1,0 +1,70 @@
+{
+  "repo": "swin-classification-pipeline",
+  "sha": "10edc77d45d7580f489c5181a9732cf4473f65d2",
+  "notebook": "tutorials/swin_classification_colab.ipynb",
+  "blob": "b69af4c0c84e1f47e0476a9f9ce1d093bb69e68f",
+  "gpu": "T4",
+  "session": "suite-swin-10edc77-52d2",
+  "started_utc": "2026-11-03T09:22:01+00:00",
+  "runner": "Colab CLI `colab exec -f` on a fresh session (not a browser Run all)",
+  "overrides": [
+    {
+      "name": "USE_BYOD",
+      "from": "False",
+      "to": "True"
+    },
+    {
+      "name": "BYOD_ZIP_PATH",
+      "from": "''",
+      "to": "'/etc/hostname'"
+    }
+  ],
+  "run_copy_blob": "83f9daef43c4d32c10728146d1a34121c9194246",
+  "run_copy_sha256": "8a0696f7ad6739c7619e9ca127ec77c098eb4ec49e6c863f80ae47319dc194d2",
+  "run_copy_note": "refusal run: the run copy is the committed notebook with the listed assignment overrides, cut immediately after the refusal cell and re-serialised (nbformat layout); input_unchanged compares against that copy",
+  "truncated_after_cell": "swin_classification-16",
+  "refusal_cell_ref": "swin_classification-16",
+  "refusal_cell_index": 6,
+  "cells_dropped": 13,
+  "code_cells_dropped": 6,
+  "original_sha256": "86896e520713c9861794d5358081d7150c0aa83dff8bf3b16d0df8a662583ef5",
+  "status": "[suite-swin-10edc77-52d2] gpu-t4-s-usw4a3-39tyl7tkqi19s | Hardware: T4 | Shape: Standard | Variant: GPU | Status: IDLE",
+  "exec_exit_code": 0,
+  "stopped": true,
+  "stop_verified": true,
+  "wall_s": 88.0,
+  "input_unchanged": true,
+  "executed_file": "swin_classification_colab_10edc77_colab-cli-t4_output.ipynb",
+  "log_cells": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "log_total": 6,
+  "code_cells": 6,
+  "executed_cells": 5,
+  "errors": [
+    {
+      "cell": "swin_classification-16",
+      "ename": "IsolatedCellRefusal",
+      "evalue": "hostname: File is not a zip file; fix the input and run this cell again (the earlier results of this session and their outputs/ files were removed)."
+    }
+  ],
+  "execution_counts": [],
+  "sequential": null,
+  "executed_sha256": "7dd8cc90f47dd8af33fdf68f8d856ccadfaf91b82fbc0099cb504243cd95d309",
+  "log_sequential_complete": true,
+  "mode": "expect_refusal",
+  "refusal_line": "Refused: hostname: File is not a zip file; fix the input and run this cell again (the earlier results of this session and their outputs/ files were removed).",
+  "halting_cell_index": 6,
+  "halting_cell_id": "swin_classification-16",
+  "error_cells": [
+    6
+  ],
+  "refusal_fail_reasons": [],
+  "refusal_ok": true,
+  "verdict": "PASS"
+}
