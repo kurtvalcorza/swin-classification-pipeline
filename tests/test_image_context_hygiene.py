@@ -84,6 +84,9 @@ def test_dockerignore_excluding_git_passes(tmp_path, monkeypatch, dockerignore):
         ".git\n!.git*\n",
         ".git\n!*\n",
         ".git\n! .git\n",
+        # Docker compiles `**` anywhere in a pattern to `(.*/)?`.
+        ".git\n!**HEAD\n",
+        ".git\n!.git**HEAD\n",
     ],
 )
 def test_dockerignore_not_excluding_git_fails(tmp_path, monkeypatch, dockerignore):

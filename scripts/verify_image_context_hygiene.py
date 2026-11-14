@@ -77,11 +77,12 @@ def _normalise(pattern: str) -> str:
 def _segment_may_match_git(segment: str) -> bool:
     """Could one Go `filepath.Match` path segment match the name `.git`?
 
-    Conservative: `**` matches any number of segments (including the `.git`
-    one), and a segment using `\\` escapes, which `fnmatch` does not model,
-    is assumed to match.
+    Conservative: Docker compiles `**` anywhere in a pattern to `(.*/)?`, so any
+    segment containing `**` (`**`, `**HEAD`, `.git**HEAD`) can cross into `.git`.
+    A segment using `\\` escapes, which `fnmatch` does not model, is also
+    assumed to match.
     """
-    if segment == "**" or "\\" in segment:
+    if "**" in segment or "\\" in segment:
         return True
     # Go negates a character class with `[^...]`, fnmatch with `[!...]`.
     return fnmatch.fnmatchcase(REQUIRED_PATTERN, segment.replace("[^", "[!"))
@@ -106,7 +107,7 @@ def excludes_required(blob: str) -> bool:
     exclusion. Comments and blank lines are ignored.
     """
     excluded = False
-    for line in blob.splitlines():
+    for line in blob.split("\n"):  # Docker splits on "\n" only, not \f, \v or \x85
         pattern = line.strip()
         if not pattern or pattern.startswith("#"):
             continue
