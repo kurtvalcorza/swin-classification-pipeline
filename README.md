@@ -85,8 +85,10 @@ images** on 2026-09-11 (fixture in the validator image → validator handoff →
 finetuner train/publish/reload from baked-in weights, `--network none`, `--gpus all`,
 RTX 5070 Ti; 14/14 emitted documents schema-valid against `ml-worker@0f0c221`).
 Both images were built from post-`.dockerignore` revisions (`.git`/`.github`
-absent from `/opt/worker/src`), which closes review finding R1. The exact
-Executor procedure is committed under `scripts/executor/`.
+absent from `/opt/worker/src`), which closes review finding R1; the release gate
+now refuses any re-pin that would reopen it (see [Image build-context
+hygiene](#image-build-context-hygiene)). The exact Executor procedure is committed
+under `scripts/executor/`.
 
 ## Tutorial (standalone notebook)
 
@@ -150,7 +152,9 @@ and logical identity the release names is proven rather than assumed —
 - each committed worker-manifest copy **agrees with `worker-manifest.json` at
   that release's declared `sourceRevision`** in the worker repository;
 - `pipelineId` agrees across the manifest and the release, each `workerId`
-  agrees with its worker manifest, and each manifest declares its expected role.
+  agrees with its worker manifest, and each manifest declares its expected role;
+- each pinned image's `sourceRevision` carries a `.dockerignore` that excludes
+  `.git` (see [Image build-context hygiene](#image-build-context-hygiene)).
 
 All three checkouts are required. A missing worker checkout is reported as a
 failed check and a non-zero exit, never as a silent pass. The narrower
@@ -176,9 +180,40 @@ FINETUNER_SRC=<finetuner checkout> \
     python scripts/negative_controls.py
 ```
 
+### Image build-context hygiene
+
+`verify_release.py` proves the release's *bindings*: identity, not the contents
+of the artifact the identity names. A coherent digest chain can still pin an
+image whose contents are wrong. Each worker Dockerfile copies its build context
+wholesale (`COPY . /opt/worker/src`) and `.gitignore` does not filter Docker
+contexts, so an image built from a revision whose `.dockerignore` is missing or
+does not exclude `.git` embeds the repository history and depends on whose
+workspace built it (review finding R1, PR #4).
+
+`scripts/verify_image_context_hygiene.py` reads `.dockerignore` at each worker
+release's `sourceRevision` and requires `.git` to be excluded and not re-included
+by a later `!` line. It needs only the two worker checkouts, not ml-worker:
+
+```sh
+VALIDATOR_SRC=<validator checkout> \
+FINETUNER_SRC=<finetuner checkout> \
+    python scripts/verify_image_context_hygiene.py
+```
+
+It passes for the committed 0.1.1 pins (validator `7c6e77f`, finetuner
+`7063849`) and is part of the release gate in two places: `verify_release.py`
+runs the same check for both workers, and the `verify-image-release` workflow
+checks out both public worker repositories and runs it on every pull request,
+so a re-pin to a pre-`.dockerignore` revision fails CI. A missing checkout or an
+unresolvable revision is reported separately from a hygiene defect, and both
+fail closed. `tests/test_image_context_hygiene.py` covers the refusals.
+
 ### Cloud verification (Kaggle clean room)
 
-The three verification gates were executed end-to-end in an isolated Kaggle cloud container:
+The three verification gates were executed end-to-end in an isolated Kaggle cloud container.
+This is a historical record against the 0.1.0 pins (validator `52d1fd0`, finetuner `0621a11`),
+taken before the 0.1.1 re-pin and before the build-context hygiene step was added to
+`verify_release.py`:
 
 - **Kernel:** [`kurtvalcorza/swin-classification-verify`](https://www.kaggle.com/code/kurtvalcorza/swin-classification-verify)
 - **Status:** `KernelWorkerStatus.COMPLETE` (Exit Code 0)
@@ -225,9 +260,10 @@ layer-2 contract PR (image-folder representation profile, required-audits entrie
 NATIVE audits) and layer-3 freeze-ledger extension live in the ml-worker stack
 and are tracked in the spec (`#1`).
 
-The currently pinned worker images still predate their `.dockerignore` fixes;
-rebuilding and repinning those images remains an Executor/worker-repo dependency
-tracked by PR #4 and is intentionally not papered over by this pipeline-only pass.
+The pinned worker images (release 0.1.1, #11) were rebuilt from post-`.dockerignore`
+revisions — validator `7c6e77f`, finetuner `7063849` — which closed review finding
+R1 from PR #4. `scripts/verify_image_context_hygiene.py` now gates that property in
+`verify_release.py` and in the `verify-image-release` workflow (#13).
 
 ## AI Assistance Disclosure
 
