@@ -60,12 +60,13 @@ def _worker(tmp_path: Path, dockerignore: str | None) -> tuple[Path, str]:
         "/.git\n",
         "./.git\n",
         "  .git  \n",
+        ".git\n!src/.git\n",  # anchored at the root: cannot reach the top-level .git
     ],
 )
 def test_dockerignore_excluding_git_passes(tmp_path, monkeypatch, dockerignore):
     repo, revision = _worker(tmp_path, dockerignore)
     monkeypatch.setenv("VALIDATOR_SRC", str(repo))
-    _, ok, detail = hygiene.check_worker("validator", "VALIDATOR_SRC", revision)
+    _, ok, detail, _ = hygiene.check_worker("validator", "VALIDATOR_SRC", revision)
     assert ok, detail
 
 
@@ -77,12 +78,18 @@ def test_dockerignore_excluding_git_passes(tmp_path, monkeypatch, dockerignore):
         ".github\n.gitignore\n",  # near-misses are not .git
         ".git\n!.git\n",  # later negation re-includes it
         ".git\n!.git/**\n",
+        # Any negation that can match .git or a path under it re-includes it.
+        ".git\n!.git/objects\n",
+        ".git\n!**/.git\n",
+        ".git\n!.git*\n",
+        ".git\n!*\n",
+        ".git\n! .git\n",
     ],
 )
 def test_dockerignore_not_excluding_git_fails(tmp_path, monkeypatch, dockerignore):
     repo, revision = _worker(tmp_path, dockerignore)
     monkeypatch.setenv("VALIDATOR_SRC", str(repo))
-    _, ok, detail = hygiene.check_worker("validator", "VALIDATOR_SRC", revision)
+    _, ok, detail, _ = hygiene.check_worker("validator", "VALIDATOR_SRC", revision)
     assert not ok
     assert "does not exclude .git" in detail
 
@@ -90,23 +97,26 @@ def test_dockerignore_not_excluding_git_fails(tmp_path, monkeypatch, dockerignor
 def test_missing_dockerignore_fails_as_hygiene_defect(tmp_path, monkeypatch):
     repo, revision = _worker(tmp_path, None)
     monkeypatch.setenv("VALIDATOR_SRC", str(repo))
-    _, ok, detail = hygiene.check_worker("validator", "VALIDATOR_SRC", revision)
+    _, ok, detail, setup_error = hygiene.check_worker("validator", "VALIDATOR_SRC", revision)
     assert not ok
+    assert not setup_error
     assert "no .dockerignore at" in detail
 
 
 def test_unresolvable_revision_is_a_setup_error_not_a_hygiene_defect(tmp_path, monkeypatch):
     repo, _ = _worker(tmp_path, ".git\n")
     monkeypatch.setenv("VALIDATOR_SRC", str(repo))
-    _, ok, detail = hygiene.check_worker("validator", "VALIDATOR_SRC", "0" * 40)
+    _, ok, detail, setup_error = hygiene.check_worker("validator", "VALIDATOR_SRC", "0" * 40)
     assert not ok
+    assert setup_error
     assert "not resolvable in VALIDATOR_SRC" in detail
 
 
 def test_unset_checkout_fails_closed(monkeypatch):
     monkeypatch.delenv("FINETUNER_SRC", raising=False)
-    _, ok, detail = hygiene.check_worker("finetuner", "FINETUNER_SRC", "a" * 40)
+    _, ok, detail, setup_error = hygiene.check_worker("finetuner", "FINETUNER_SRC", "a" * 40)
     assert not ok
+    assert setup_error
     assert "set FINETUNER_SRC" in detail
 
 
@@ -123,14 +133,34 @@ def test_check_release_reads_the_committed_pins(tmp_path, monkeypatch):
     monkeypatch.setenv("VALIDATOR_SRC", str(good))
     monkeypatch.setenv("FINETUNER_SRC", str(bad))
     results = hygiene.check_release(staged)
-    assert [ok for _, ok, _ in results] == [True, False]
+    assert [r.ok for r in results] == [True, False]
 
 
 def test_main_exit_code_reflects_failure(tmp_path, monkeypatch, capsys):
     monkeypatch.delenv("VALIDATOR_SRC", raising=False)
     monkeypatch.delenv("FINETUNER_SRC", raising=False)
     assert hygiene.main() == 1
-    assert "0/2 checks passed" in capsys.readouterr().out
+    captured = capsys.readouterr()
+    assert "0/2 checks passed" in captured.out
+    # Missing checkouts are a setup error: no rebuild advice.
+    assert "setup error" in captured.err
+    assert "Rebuild the worker image" not in captured.err
+
+
+def test_main_gives_remediation_only_for_a_hygiene_failure(monkeypatch, capsys):
+    monkeypatch.setattr(
+        hygiene,
+        "check_release",
+        lambda: [
+            hygiene.Result("validator ok", True, "fine"),
+            hygiene.Result("finetuner bad", False, "no .dockerignore at abc1234"),
+        ],
+    )
+    assert hygiene.main() == 1
+    captured = capsys.readouterr()
+    assert "1/2 checks passed" in captured.out
+    assert "Rebuild the worker image" in captured.err
+    assert "setup error" not in captured.err
 
 
 @pytest.mark.skipif(
@@ -139,7 +169,7 @@ def test_main_exit_code_reflects_failure(tmp_path, monkeypatch, capsys):
 )
 def test_committed_release_passes_against_real_worker_checkouts():
     results = hygiene.check_release()
-    assert all(ok for _, ok, _ in results), results
+    assert all(r.ok for r in results), results
 
 
 def test_hygiene_is_wired_into_verify_release():

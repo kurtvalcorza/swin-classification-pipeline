@@ -200,10 +200,8 @@ def main() -> int:
         ("validator", "VALIDATOR_SRC", validator_release),
         ("finetuner", "FINETUNER_SRC", finetuner_release),
     ):
-        label, ok, detail = check_image_context(
-            role, env_name, release_document["sourceRevision"]
-        )
-        checks.append((f"{label} ({detail})", ok))
+        result = check_image_context(role, env_name, release_document["sourceRevision"])
+        checks.append((f"{result.label} ({result.detail})", result.ok))
 
     # Digest agreement alone does not prove the documents describe the same
     # logical worker: a coherent repin can pair a release with a foreign

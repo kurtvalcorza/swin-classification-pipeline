@@ -85,8 +85,10 @@ images** on 2026-09-11 (fixture in the validator image → validator handoff →
 finetuner train/publish/reload from baked-in weights, `--network none`, `--gpus all`,
 RTX 5070 Ti; 14/14 emitted documents schema-valid against `ml-worker@0f0c221`).
 Both images were built from post-`.dockerignore` revisions (`.git`/`.github`
-absent from `/opt/worker/src`), which closes review finding R1; the release gate
-now refuses any re-pin that would reopen it (see [Image build-context
+absent from `/opt/worker/src`), which closes review finding R1. The release gate
+now reads the root `.dockerignore` at each pinned `sourceRevision` and fails unless
+it excludes `.git`; it does not inspect image contents or a
+`Dockerfile.dockerignore` (see [Image build-context
 hygiene](#image-build-context-hygiene)). The exact Executor procedure is committed
 under `scripts/executor/`.
 
@@ -190,9 +192,13 @@ contexts, so an image built from a revision whose `.dockerignore` is missing or
 does not exclude `.git` embeds the repository history and depends on whose
 workspace built it (review finding R1, PR #4).
 
-`scripts/verify_image_context_hygiene.py` reads `.dockerignore` at each worker
-release's `sourceRevision` and requires `.git` to be excluded and not re-included
-by a later `!` line. It needs only the two worker checkouts, not ml-worker:
+`scripts/verify_image_context_hygiene.py` reads the root `.dockerignore` at each
+worker release's `sourceRevision` and requires `.git` to be excluded and not
+re-included by any later `!` line that could match `.git` or a path under it
+(`!.git/objects`, `!**/.git`, `!.git*`, `!*` all count; the match is deliberately
+conservative). It is a static check of the source revision: it does not inspect
+the built image's contents, and it does not read a `Dockerfile.dockerignore`. It
+needs only the two worker checkouts, not ml-worker:
 
 ```sh
 VALIDATOR_SRC=<validator checkout> \
@@ -206,7 +212,10 @@ runs the same check for both workers, and the `verify-image-release` workflow
 checks out both public worker repositories and runs it on every pull request,
 so a re-pin to a pre-`.dockerignore` revision fails CI. A missing checkout or an
 unresolvable revision is reported separately from a hygiene defect, and both
-fail closed. `tests/test_image_context_hygiene.py` covers the refusals.
+fail closed, with a setup message rather than rebuild advice.
+`tests/test_image_context_hygiene.py` covers the refusals, and control 5 of
+`scripts/negative_controls.py` proves `verify_release.py` itself exits non-zero
+on a re-pin whose manifest agrees but whose revision has no `.dockerignore`.
 
 ### Cloud verification (Kaggle clean room)
 
