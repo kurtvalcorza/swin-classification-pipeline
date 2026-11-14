@@ -190,6 +190,19 @@ def main() -> int:
         )
     )
 
+    # Bindings prove identity, not contents (review finding R1): each pinned
+    # image must come from a revision whose .dockerignore keeps .git out of the
+    # build context. Imported here, not at module scope, because that module
+    # imports this one's git_output helper.
+    from verify_image_context_hygiene import check_worker as check_image_context
+
+    for role, env_name, release_document in (
+        ("validator", "VALIDATOR_SRC", validator_release),
+        ("finetuner", "FINETUNER_SRC", finetuner_release),
+    ):
+        result = check_image_context(role, env_name, release_document["sourceRevision"])
+        checks.append((f"{result.label} ({result.detail})", result.ok))
+
     # Digest agreement alone does not prove the documents describe the same
     # logical worker: a coherent repin can pair a release with a foreign
     # manifest. Bind the logical identities explicitly.

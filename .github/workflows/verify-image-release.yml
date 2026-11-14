@@ -18,5 +18,26 @@ jobs:
           python-version: "3.11"
       - name: Verify release binding
         run: python scripts/verify_image_release.py
+      # Both worker repositories are public. Full history is needed because the
+      # pinned sourceRevision is not necessarily the tip of the default branch.
+      - name: Check out validator worker source
+        uses: actions/checkout@v4
+        with:
+          repository: kurtvalcorza/swin-classification-dataset-validator
+          path: _workers/validator
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Check out finetuner worker source
+        uses: actions/checkout@v4
+        with:
+          repository: kurtvalcorza/swin-classification-finetuner
+          path: _workers/finetuner
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify image build-context hygiene
+        env:
+          VALIDATOR_SRC: _workers/validator
+          FINETUNER_SRC: _workers/finetuner
+        run: python scripts/verify_image_context_hygiene.py
       - name: Validate Notebook Spec source invariants
         run: python scripts/validate_colab_tutorial.py

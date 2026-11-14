@@ -205,6 +205,52 @@ def main() -> int:
                 f"exit {code}",
             )
 
+        # Control 5 -- bindings prove identity, not contents (finding R1). A
+        # re-pin to a revision whose manifest agrees byte-for-byte but which has
+        # no .dockerignore must be refused by the hygiene check itself. (The
+        # edited release also breaks the pipeline-release digest chain, so the
+        # control asserts the specific hygiene FAIL line, not just the exit code.)
+        unclean = tmpdir / "unclean-worker"
+        unclean.mkdir()
+        git_init = subprocess.run(
+            ["git", "init", "-q", str(unclean)], capture_output=True, text=True
+        )
+        if git_init.returncode != 0:
+            record("pre-.dockerignore re-pin is refused", False, "git init failed")
+        else:
+            shutil.copyfile(
+                ROOT / "workers" / "validator" / "worker-manifest.json",
+                unclean / "worker-manifest.json",
+            )
+            git(unclean, "add", "-A")
+            git(unclean, "-c", "user.email=nc@example.invalid", "-c", "user.name=nc",
+                "commit", "-qm", "manifest without .dockerignore")
+            unclean_revision = git(unclean, "rev-parse", "HEAD").strip()
+
+            staged = copy_repo(tmpdir / "staged-hygiene")
+            release_path = staged / "release" / "worker-release-validator.json"
+            release = json.loads(release_path.read_text())
+            release["sourceRevision"] = unclean_revision
+            release_path.write_text(json.dumps(release, indent=2) + "\n")
+
+            env_backup = os.environ.get("VALIDATOR_SRC")
+            os.environ["VALIDATOR_SRC"] = str(unclean)
+            try:
+                code, out = run_verifier(staged, Path(contract_src))
+            finally:
+                if env_backup is None:
+                    os.environ.pop("VALIDATOR_SRC", None)
+                else:
+                    os.environ["VALIDATOR_SRC"] = env_backup
+            record(
+                "pre-.dockerignore re-pin is refused",
+                code != 0
+                and "FAIL  validator image source" in out
+                and "no .dockerignore at" in out
+                and "PASS  validator committed manifest agrees with manifest at" in out,
+                f"exit {code}",
+            )
+
     for name, ok, detail in results:
         print(f"{'PASS' if ok else 'FAIL'}  {name} ({detail})")
     failed = [name for name, ok, _ in results if not ok]

@@ -14,7 +14,7 @@ NVIDIA Container Toolkit).
 | 2 | `image_smoke.sh` — fixture in the validator image → validator handoff → finetuner train/publish/reload | distro | `--network none` for both worker stages; `--gpus all` for the finetuner |
 | 2b | `validate_docs.py` — every emitted contract document against the pinned schemas | distro | — |
 | 3 | `repin_release.py` — worker manifests, image-smoke evidence, worker releases, pipeline manifest, composition report (contract solver), pipeline release, `pipeline-metadata.json` | Windows, pipeline repo root, contract worktree at `0f0c221` | — |
-| 4 | `verify_release.py` 32/32, `negative_controls.py` 7/7, `verify_image_release.py` 7/7, `verify_open_weight_provenance.py`, `verify_pipeline_metadata.py` + 12 negative controls, hygiene oracle 2/2 | Windows | — |
+| 4 | `verify_release.py` 34/34, `negative_controls.py` 8/8, `verify_image_release.py` 7/7, `verify_open_weight_provenance.py`, `verify_pipeline_metadata.py` + 12 negative controls, hygiene oracle 2/2 | Windows | — |
 
 Image digests are the local containerd manifest digests (`docker image inspect --format '{{.Id}}'`); they become registry digests unchanged on push.
 
