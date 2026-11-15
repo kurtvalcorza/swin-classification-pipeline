@@ -44,7 +44,7 @@ and off-catalog selection remain fail-closed.
 | :--- | :--- | :--- |
 | Dataset validator | [swin-classification-dataset-validator](https://github.com/kurtvalcorza/swin-classification-dataset-validator) | `7c6e77fd72a79e7debe9ef811fc6c3227d44ce92` |
 | Finetuner | [swin-classification-finetuner](https://github.com/kurtvalcorza/swin-classification-finetuner) | `70638493d081501501506108b23c6937eff770ef` |
-| Contract | [ml-worker](https://github.com/kurtvalcorza/ml-worker) `build/dimer-v1-freeze` | `0f0c221222402721ee7716edf01378604cbd6ef3` |
+| Contract | [ml-worker](https://github.com/kurtvalcorza/ml-worker) (private) `build/dimer-v1-freeze` | `0f0c221222402721ee7716edf01378604cbd6ef3` |
 
 Worker source revisions are exact immutable commits, independent of branch state; the
 values above are the `sourceRevision` fields of `release/worker-release-*.json`, which are
@@ -135,7 +135,37 @@ python tools/build_notebook.py --check
 
 ## Verify
 
-Every binding re-derives from the committed inputs and the pinned contract:
+**Who can run what.** The contract repository
+[`kurtvalcorza/ml-worker`](https://github.com/kurtvalcorza/ml-worker) is private.
+The full release gate, `scripts/verify_release.py`, and its proof,
+`scripts/negative_controls.py`, need a checkout of it at the pinned contract
+revision. Without ml-worker access you cannot run them: they exit non-zero with
+a setup message rather than a partial pass. The two worker repositories are
+public.
+
+These checks run without ml-worker:
+
+| Check | Needs |
+| :--- | :--- |
+| `scripts/verify_image_release.py` | this repository only |
+| `scripts/verify_open_weight_provenance.py` | this repository only |
+| `scripts/verify_pipeline_metadata.py`, `scripts/negative_controls_metadata.py` | this repository only |
+| `scripts/validate_colab_tutorial.py`, `tools/validate_release_assets.py`, `tools/build_notebook.py --check` | this repository only |
+| `ruff check .`, `pytest` | this repository, installed with `pip install -e . --no-deps` plus `pillow` and `pytest` |
+| `scripts/verify_image_context_hygiene.py` | this repository plus checkouts of the two public worker repositories |
+
+Together these cover the image digests and smoke evidence, the weight
+provenance, the pipeline metadata, the tutorial and the build-context hygiene of
+the pinned worker revisions. They do not cover what only `verify_release.py`
+proves: schema validity against the contract, the contract checkout's identity,
+the worker-manifest agreement with each `sourceRevision`, and the reproduced
+composition report. For those, the evidence available without ml-worker access
+is the committed record of the maintainer's runs, listed under
+[Cloud verification](#cloud-verification-kaggle-clean-room). That record is
+evidence of a run, not a check you can repeat.
+
+With ml-worker access, every binding re-derives from the committed inputs and
+the pinned contract:
 
 ```sh
 git -C <ml-worker> worktree add /tmp/mlw 0f0c221222402721ee7716edf01378604cbd6ef3
@@ -159,9 +189,8 @@ and logical identity the release names is proven rather than assumed —
   `.git` (see [Image build-context hygiene](#image-build-context-hygiene)).
 
 All three checkouts are required. A missing worker checkout is reported as a
-failed check and a non-zero exit, never as a silent pass. The narrower
-`verify_image_release.py` and `verify_open_weight_provenance.py` checks are
-self-contained and do not require the external source trees.
+failed check and a non-zero exit, never as a silent pass. The narrower checks
+in the table above do not need ml-worker.
 
 The contract-identity checks are **gates, not checks**: they run before
 `ML_WORKER_SRC/src` is placed on `sys.path`, because importing contract code
@@ -173,7 +202,8 @@ contract rejects (DOC-001: duplicate object keys) is never digested as valid.
 `scripts/negative_controls.py` is the executable proof that the verifier refuses
 what it claims to refuse. It builds each scenario in a temporary directory --
 nothing in this repository or in your checkouts is modified -- and asserts the
-specific refusal, including that an unproved contract checkout's code never runs:
+specific refusal, including that an unproved contract checkout's code never runs.
+Like `verify_release.py`, it needs the private ml-worker checkout:
 
 ```sh
 ML_WORKER_SRC=/tmp/mlw \
@@ -222,7 +252,8 @@ on a re-pin whose manifest agrees but whose revision has no `.dockerignore`.
 The three verification gates were executed end-to-end in an isolated Kaggle cloud container.
 This is a historical record against the 0.1.0 pins (validator `52d1fd0`, finetuner `0621a11`),
 taken before the 0.1.1 re-pin and before the build-context hygiene step was added to
-`verify_release.py`:
+`verify_release.py`. Gates 2 and 3 ran against a private ml-worker checkout, so this
+record cannot be re-run without ml-worker access:
 
 - **Kernel:** [`kurtvalcorza/swin-classification-verify`](https://www.kaggle.com/code/kurtvalcorza/swin-classification-verify)
 - **Status:** `KernelWorkerStatus.COMPLETE` (Exit Code 0)
