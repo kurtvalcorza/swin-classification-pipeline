@@ -261,7 +261,7 @@ record cannot be re-run without ml-worker access:
 - **Gate 1 (`scripts/verify_image_release.py`):** 7/7 checks passed (0.12s) — smoke status `PASSED`, validator and finetuner image digests bound to evidence.
 - **Gate 2 (`scripts/verify_release.py`):** 32/32 checks passed (0.53s) — contract verified clean at pinned revision `0f0c221`, validator at `52d1fd0`, finetuner at `0621a11`, manifests and composition report reproduced.
 - **Gate 3 (`scripts/negative_controls.py`):** 7/7 controls discriminated (1.36s) — baseline verifies (`exit 0`), unproved/dirty/non-git contract refused (`exit 1`), duplicate keys refused (`exit 1`).
-- **Machine-readable evidence:** [`evidence/release-verification-kaggle.json`](file:///evidence/release-verification-kaggle.json)
+- **Machine-readable evidence:** [`evidence/release-verification-kaggle.json`](evidence/release-verification-kaggle.json)
 
 ## Model card and specifications
 
